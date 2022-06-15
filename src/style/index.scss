@@ -1,0 +1,50 @@
+.container {
+    height: 100%;
+    padding: 20px;
+    * {
+        // color: rgb(250, 250, 250);
+    }
+}
+
+.flex-flex {
+    display: flex;
+}
+
+.flex-end {
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.padding-20 {
+    padding: 20px;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-center {
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-between {
+    justify-content: space-between;
+}
+
+.w100 {
+    width: 100%;
+}
+
+.h100 {
+    height: 100%;
+}
+
+li {
+    list-style: none;
+}
+
+.ui-color {
+    color: rgb(151, 152, 204) !important;
+}
