@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-14 19:14:08
+ * @LastEditTime: 2022-06-16 16:37:48
 -->
 <template>
   <div class="container">
@@ -49,23 +49,27 @@ export default defineComponent({
       let key = []
       key.push({
         frame: 0,
-        value: new BABYLON.Vector3(-40, 2, 3)
+        value: new BABYLON.Vector3(-40, 1.5, 3)
       })
       key.push({
         frame: 20,
-        value: new BABYLON.Vector3(16, 2, 3)
+        value: new BABYLON.Vector3(14.5, 1.5, 3)
       })
       key.push({
         frame: 40,
-        value: new BABYLON.Vector3(16, 2, -15)
+        value: new BABYLON.Vector3(14.4, 1.5, -13)
       })
       key.push({
-        frame: 60,
-        value: new BABYLON.Vector3(5, 2, -15)
+        frame: 58,
+        value: new BABYLON.Vector3(5, 1.5, -15)
       })
       key.push({
         frame: 80,
-        value: new BABYLON.Vector3(2, 2, -8)
+        value: new BABYLON.Vector3(4.2, 1.5, -11)
+      })
+      key.push({
+        frame: 85,
+        value: new BABYLON.Vector3(7, 1.5, -11)
       })
       let keys = []
       keys.push({
@@ -73,40 +77,55 @@ export default defineComponent({
         value: new BABYLON.Vector3(0, 20.5, 0)
       })
       keys.push({
-        frame: 18,
-        value: new BABYLON.Vector3(0, 21, 0)
+        frame: 10,
+        value: new BABYLON.Vector3(0, 20.6, 0)
       })
       keys.push({
-        frame: 20,
+        frame: 15,
+        value: new BABYLON.Vector3(0, 20.7, 0)
+      })
+      keys.push({
+        frame: 18,
         value: new BABYLON.Vector3(0, 21.5, 0)
       })
       keys.push({
+        frame: 20,
+        value: new BABYLON.Vector3(0, 21.8, 0)
+      })
+      keys.push({
         frame: 35,
-        value: new BABYLON.Vector3(0, 22, 0)
+        value: new BABYLON.Vector3(0, 22.2, 0)
       })
       keys.push({
         frame: 40,
-        value: new BABYLON.Vector3(0, 23.5, 0)
+        value: new BABYLON.Vector3(0, 23.8, 0)
       })
       keys.push({
-        frame: 52,
-        value: new BABYLON.Vector3(0, 23.5, 0)
+        frame: 50,
+        value: new BABYLON.Vector3(0, 24, 0)
       })
       keys.push({
         frame: 60,
-        value: new BABYLON.Vector3(0, 25.3, 0)
+        value: new BABYLON.Vector3(0, 25.1, 0)
       })
       keys.push({
-        frame: 80,
-        value: new BABYLON.Vector3(0, 26.5, 0)
+        frame: 65,
+        value: new BABYLON.Vector3(0, 25.6, 0)
       })
-
+      keys.push({
+        frame: 82,
+        value: new BABYLON.Vector3(0, 25.6, 0)
+      })
+      keys.push({
+        frame: 86,
+        value: new BABYLON.Vector3(0, 25.3, 0)
+      })
       animationBox.setKeys(key)
       animationRon.setKeys(keys)
       babylon.camera.animations = []
       babylon.camera.animations.push(animationBox)
       babylon.camera.animations.push(animationRon)
-      babylon.scene.beginAnimation(babylon.camera, 0, 100, true, 0.1)
+      babylon.scene.beginAnimation(babylon.camera, 0, 100, true, 0.03)
     }
     const handleClick = () => {
       let animationBox = new BABYLON.Animation(
@@ -141,7 +160,7 @@ export default defineComponent({
         frame: 100,
         value: new BABYLON.Vector3(-115, 2, -102)
       })
-      var keys2 = []
+      let keys2 = []
 
       keys2.push({
         frame: 0,
@@ -171,12 +190,11 @@ export default defineComponent({
       babylon.scene.beginAnimation(babylon.camera, 0, 100, true, 0.3)
       babylon.camera.attachControl(babylon.canvas, false)
     }
-
     const createScene = () => {
       babylon.scene = new BABYLON.Scene(babylon.engine)
       babylon.camera = new BABYLON.UniversalCamera(
         'UniversalCamera',
-        new BABYLON.Vector3(-40, 2, 3),
+        new BABYLON.Vector3(-40, 1.5, 3),
         babylon.scene
       )
       babylon.camera.rotation = new BABYLON.Vector3(0, 20.5, 0)
@@ -184,14 +202,13 @@ export default defineComponent({
       // 让相机响应用户操作
       babylon.camera.attachControl(babylon.canvas, false)
       babylon.scene.clearColor = new BABYLON.Color3(0.5, 0.8, 0.5)
-      var background = BABYLON.MeshBuilder.CreateGround(
+      let background = BABYLON.MeshBuilder.CreateGround(
         'myGround',
         { width: 500, height: 500, subdivisions: 1 },
         babylon.scene
       )
-      background.position.y = -0.5
-      var skybox = BABYLON.Mesh.CreateBox('skyBox', 500.0, babylon.scene)
-      var skyboxMaterial = new BABYLON.StandardMaterial('skyBox', babylon.scene)
+      let skybox = BABYLON.Mesh.CreateBox('skyBox', 500.0, babylon.scene)
+      let skyboxMaterial = new BABYLON.StandardMaterial('skyBox', babylon.scene)
       skyboxMaterial.backFaceCulling = false
       skyboxMaterial.disableLighting = true
       skybox.material = skyboxMaterial
@@ -202,19 +219,36 @@ export default defineComponent({
       )
       skyboxMaterial.reflectionTexture.coordinatesMode =
         BABYLON.Texture.SKYBOX_MODE
-      var light = new BABYLON.HemisphericLight(
-        'HemiLight',
-        new BABYLON.Vector3(-20, 20, 0),
+      // let light = new BABYLON.PointLight(
+      //   'dir01',
+      //   new BABYLON.Vector3(-20, 40, -20),
+      //   babylon.scene
+      // )
+      let light2 = new BABYLON.HemisphericLight(
+        'dir01',
+        new BABYLON.Vector3(0, 20, 0),
         babylon.scene
       )
-      light.intensity = 1
+      // light.intensity = 0.6
+
+      light2.groundColor = new BABYLON.Color3(1, 1, 1)
+      light2.intensity = 0.3
+      // let shadowGenerator = new BABYLON.ShadowGenerator(1024, light)
+      // shadowGenerator.useContactHardeningShadow = true
+      // shadowGenerator.setDarkness(0.1)
+      // background.receiveShadows = true
+      let light = new BABYLON.PointLight(
+        'pointLight',
+        new BABYLON.Vector3(1, 40, 1),
+        babylon.scene
+      )
+      light.intensity = 0.4
       babylon.scene.gravity = new BABYLON.Vector3(0, -1.81, 0)
       babylon.camera.applyGravity = true
       babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1)
       babylon.scene.collisionsEnabled = true
       babylon.camera.checkCollisions = true
       background.checkCollisions = true
-
       BABYLON.SceneLoader.ImportMesh(
         '',
         './',
@@ -226,7 +260,23 @@ export default defineComponent({
             'myMaterial',
             babylon.scene
           )
+          let myMaterial2 = new BABYLON.StandardMaterial(
+            'myMaterial',
+            babylon.scene
+          )
           babylon.scene.ambientColor = new BABYLON.Color3(1, 1, 1)
+          myMaterial2.diffuseColor = new BABYLON.Color3(1, 1, 1)
+
+          meshes.forEach((e) => {
+            console.log(e.name == 'door')
+
+            // shadowGenerator.addShadowCaster(e)
+            //  e.material = myMaterial2
+          })
+          // meshes[1].material = myMaterial2
+          // myMaterial2.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87)
+          //  myMaterial2.emissiveColor = new BABYLON.Color3(1, 1, 1)
+          //  myMaterial2.ambientColor = new BABYLON.Color3(0.1, 0.1, 0.1);
 
           // myMaterial.diffuseColor = new BABYLON.Color3(1, 0, 1);
           // myMaterial.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
@@ -248,7 +298,7 @@ export default defineComponent({
             'PATH TO IMAGE',
             babylon.scene
           )
-          meshes[1].material = myMaterial
+          // meshes[1].material = myMaterial
 
           for (let i = 0; i < meshes.length; i++) {
             meshes[i].checkCollisions = true
@@ -257,7 +307,7 @@ export default defineComponent({
       )
       window.addEventListener('click', function () {
         // We try to pick an object
-        var pickResult = babylon.scene.pick(
+        let pickResult = babylon.scene.pick(
           babylon.scene.pointerX,
           babylon.scene.pointerY
         )
@@ -268,6 +318,18 @@ export default defineComponent({
         ) {
           // pickResult.pickedMesh.material.alpha = 0.5
           // pickResult.pickedMesh.addRotation(0.1,0,0)
+          pickResult.pickedMesh.actionManager = new BABYLON.ActionManager(
+            babylon.scene
+          )
+          pickResult.pickedMesh.actionManager.registerAction(
+            new BABYLON.InterpolateValueAction(
+              BABYLON.ActionManager.OnPickTrigger,
+              pickResult.pickedMesh,
+              'rotation',
+              new BABYLON.Vector3(0, 0.3, 0),
+              1000
+            )
+          )
         }
         console.log(pickResult, 'pickResult')
       })
