@@ -97,6 +97,7 @@ export default defineComponent({
   }
   .card-container {
     padding: 10px;
+    display: flex;
     color: #fff;
   }
 }

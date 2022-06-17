@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-01 16:17:10
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-07 13:11:49
+ * @LastEditTime: 2022-06-17 17:01:03
 -->
 <template>
   <div class="container">
@@ -46,10 +46,10 @@ export default defineComponent({
     const router = useRouter()
     const state = reactive<any>({
       menuList: [
-        { label: 'TextMenu1' },
-        { label: 'Menu2 Comsint' },
-        { label: 'Menu3 Suna' },
-        { label: 'Menu4' }
+        { label: '综合首页' },
+        { label: '智能巡检' },
+        { label: '设备管理' },
+        { label: '实时告警' }
       ],
       time: new Date()
     })
@@ -76,6 +76,7 @@ export default defineComponent({
 }
 .container {
   padding: 0;
+  box-shadow: 0 0 5px 10px rgba(0, 20, 29, 0.8) inset;
 }
 .header-nav {
   position: fixed;
@@ -83,7 +84,10 @@ export default defineComponent({
   width: 100%;
   padding: 0 10px;
   height: 97px;
-  background: linear-gradient(rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(
+    rgba(0, 20, 29, 0.8) 10%,
+    rgba(0, 20, 29, 0) 100%
+  );
   display: flex;
   justify-content: space-between;
   align-items: center;
