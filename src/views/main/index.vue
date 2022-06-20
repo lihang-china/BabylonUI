@@ -4,21 +4,23 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-17 16:59:41
+ * @LastEditTime: 2022-06-20 16:22:55
 -->
 <template>
   <div class="container">
+    <a-space v-if="show">
+    <a-spin size="large" />
+  </a-space>
     <canvas id="mycanvas" style="width: 100%; height: 100%"></canvas>
     <div class="left">
       <my-card :title="'模型信息'">
-        <div>Text Demo
+        <div>
+          Text Demo
           <button @click="handleSelect">房间元</button>
         </div>
       </my-card>
     </div>
-    <div class="bottom">
-      
-    </div>
+    <div class="bottom"></div>
     <div class="right"></div>
   </div>
 </template>
@@ -144,116 +146,44 @@ export default defineComponent({
       babylon.scene = new BABYLON.Scene(babylon.engine)
       babylon.camera = new BABYLON.UniversalCamera(
         'UniversalCamera',
-        new BABYLON.Vector3(-40, 25, 3),
+        new BABYLON.Vector3(-300, 0, 0),
         babylon.scene
       )
-      babylon.camera.rotation = new BABYLON.Vector3(0.4, 20.6, 0)
+      babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.55, 0)
+      babylon.camera.position.y = 200
       // 让相机响应用户操作
       babylon.camera.attachControl(babylon.canvas, false)
-      babylon.scene.clearColor = new BABYLON.Color3(0.5, 0.8, 0.5)
+      babylon.scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8)
       let background = BABYLON.MeshBuilder.CreateGround(
         'myGround',
-        { width: 500, height: 500, subdivisions: 1 },
+        { width: 10000, height: 10000, subdivisions: 1 },
         babylon.scene
       )
-      let skybox = BABYLON.Mesh.CreateBox('skyBox', 500.0, babylon.scene)
-      let skyboxMaterial = new BABYLON.StandardMaterial('skyBox', babylon.scene)
-      skyboxMaterial.backFaceCulling = false
-      skyboxMaterial.disableLighting = true
-      skybox.material = skyboxMaterial
-      skyboxMaterial.disableLighting = true
-      skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(
-        'textures/skybox',
-        babylon.scene
-      )
-      skyboxMaterial.reflectionTexture.coordinatesMode =
-        BABYLON.Texture.SKYBOX_MODE
+      background.position.y = -0.5
+      //添加雾
+      babylon.scene.fogMode = BABYLON.Scene.FOGMODE_EXP
+      babylon.scene.fogColor = new BABYLON.Color3(0.9, 0.9, 0.9)
+      babylon.scene.fogDensity = 0.00005
       let light2 = new BABYLON.HemisphericLight(
         'dir01',
         new BABYLON.Vector3(0, 20, 0),
         babylon.scene
       )
       light2.groundColor = new BABYLON.Color3(1, 1, 1)
-      light2.intensity = 0.3
-      let light = new BABYLON.PointLight(
-        'pointLight',
-        new BABYLON.Vector3(1, 40, 1),
-        babylon.scene
-      )
-      light.intensity = 0.4
-      babylon.scene.gravity = new BABYLON.Vector3(0, -1.81, 0)
-      babylon.camera.applyGravity = true
+      light2.intensity = 0.7
+
+      //碰撞检测
       babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1)
       babylon.scene.collisionsEnabled = true
-      // babylon.camera.checkCollisions = true
-      // background.checkCollisions = true
+      babylon.camera.checkCollisions = true
+      background.checkCollisions = true
       BABYLON.SceneLoader.ImportMesh(
         '',
         './',
-        'demo1.gltf',
+        '3d66.gltf',
         babylon.scene,
-        function (meshes) {
-          left1 = meshes
-          let myMaterial = new BABYLON.StandardMaterial(
-            'myMaterial',
-            babylon.scene
-          )
-          let myMaterial2 = new BABYLON.StandardMaterial(
-            'myMaterial',
-            babylon.scene
-          )
-          babylon.scene.ambientColor = new BABYLON.Color3(1, 1, 1)
-          myMaterial2.diffuseColor = new BABYLON.Color3(1, 1, 1)
-
-          meshes.forEach((e, index) => {
-            console.log(e.name == 'door', index)
-          })
-          meshes[535].rotation.y = 10
-          console.log(meshes[535], '65565')
-          meshes[535].rotationQuaternion = null
-          meshes[535].rotation.y = Math.PI / 2
-          let doorMeshLeft = BABYLON.MeshBuilder.CreateBox('doorMeshLeft', {
-            height: 4,
-            width: 2,
-            depth: 0.25
-          })
-          doorMeshLeft.position = new BABYLON.Vector3(-1, 0, 5.5)
-          meshes[535].actionManager = new BABYLON.ActionManager(babylon.scene)
-          meshes[535].setPivotPoint(
-            new BABYLON.Vector3(-1, 0, 0),
-            BABYLON.Space.LOCAL
-          )
-          meshes[535].actionManager.registerAction(
-            new BABYLON.CombineAction(BABYLON.ActionManager.OnPickTrigger, [
-              new BABYLON.InterpolateValueAction(
-                BABYLON.ActionManager.OnPickTrigger,
-                meshes[535],
-                'rotation.y',
-                -Math.PI / 2,
-                1500
-              )
-            ])
-          )
-          myMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1)
-          myMaterial.diffuseTexture = new BABYLON.Texture(
-            'PATH TO IMAGE',
-            babylon.scene
-          )
-          myMaterial.specularTexture = new BABYLON.Texture(
-            'PATH TO IMAGE',
-            babylon.scene
-          )
-          myMaterial.emissiveTexture = new BABYLON.Texture(
-            'PATH TO IMAGE',
-            babylon.scene
-          )
-          myMaterial.ambientTexture = new BABYLON.Texture(
-            'PATH TO IMAGE',
-            babylon.scene
-          )
-          for (let i = 0; i < meshes.length; i++) {
-            // meshes[i].checkCollisions = true
-          }
+        (mesh) => {
+          console.log(mesh, 'asdsad')
         }
       )
       window.addEventListener('click', function () {
@@ -261,6 +191,9 @@ export default defineComponent({
           babylon.scene.pointerX,
           babylon.scene.pointerY
         )
+        console.log(pickResult,'pickResult');
+        pickResult.pickedMesh.position.y = 1
+        
       })
       babylon.engine.runRenderLoop(function () {
         babylon.scene.render()
@@ -292,7 +225,6 @@ export default defineComponent({
 }
 .right,
 .left {
-
   width: 320px;
   height: 100%;
   z-index: 10;
