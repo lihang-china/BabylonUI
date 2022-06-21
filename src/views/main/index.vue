@@ -4,13 +4,13 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-20 16:22:55
+ * @LastEditTime: 2022-06-21 10:58:32
 -->
 <template>
   <div class="container">
-    <a-space v-if="show">
-    <a-spin size="large" />
-  </a-space>
+    <a-space v-show="!state.show">
+      <a-spin size="large" />
+    </a-space>
     <canvas id="mycanvas" style="width: 100%; height: 100%"></canvas>
     <div class="left">
       <my-card :title="'模型信息'">
@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import myCard from './components/mainCard.vue'
-import { defineComponent, onMounted } from 'vue'
+import { defineComponent, onMounted, reactive, ref } from 'vue'
 import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders'
 export default defineComponent({
@@ -35,7 +35,9 @@ export default defineComponent({
     myCard
   },
   setup() {
-    let left1: any = []
+    const state = reactive({
+      show: false
+    })
     const babylon: any = {
       canvas: undefined,
       engine: undefined,
@@ -179,11 +181,11 @@ export default defineComponent({
       background.checkCollisions = true
       BABYLON.SceneLoader.ImportMesh(
         '',
-        './',
-        '3d66.gltf',
+        'https://raw.githubusercontent.com/lihang-china/BabylonUI/main/public/3d66.gltf',
+        '',
         babylon.scene,
         (mesh) => {
-          console.log(mesh, 'asdsad')
+          state.show = true
         }
       )
       window.addEventListener('click', function () {
@@ -191,9 +193,8 @@ export default defineComponent({
           babylon.scene.pointerX,
           babylon.scene.pointerY
         )
-        console.log(pickResult,'pickResult');
-        pickResult.pickedMesh.position.y = 1
-        
+        console.log(pickResult, 'pickResult')
+        // pickResult.pickedMesh.position.y = 1
       })
       babylon.engine.runRenderLoop(function () {
         babylon.scene.render()
@@ -202,10 +203,20 @@ export default defineComponent({
     onMounted(() => {
       initBabylon()
       createScene()
+      let work = new Worker(
+        'https://raw.githubusercontent.com/lihang-china/BabylonUI/main/public/3d66.gltf'
+      )
+
+      // work.postMessage('hello worker')
+      // work.onmessage = (e) => {
+      //   console.log(`主进程收到了子进程发出的信息：${e.data}`)
+      //   // 主进程收到了子进程发出的信息：你好，我是子进程！
+      //   work.terminate()
+      // }
     })
     return {
       babylon,
-      left1,
+      state,
       handleSelect
     }
   }
@@ -254,5 +265,11 @@ button {
   &:nth-child(2) {
     left: 100px;
   }
+}
+.ant-space {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 99999999;
 }
 </style>

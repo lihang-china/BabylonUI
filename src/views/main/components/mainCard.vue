@@ -8,7 +8,7 @@
           >
         </div>
         <div class="top-des">
-          <span>{{ prop.desc.title }}</span> {{ prop.desc.value }}
+          <span>{{ prop.desc.title }}</span> {{ state.date }}
         </div>
       </div>
       <div class="bottom-line">
@@ -22,7 +22,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, registerRuntimeCompiler } from 'vue'
+import { defineComponent, onMounted, reactive, registerRuntimeCompiler } from 'vue'
 import { CompressOutlined } from '@ant-design/icons-vue'
 export default defineComponent({
   props: {
@@ -45,7 +45,13 @@ export default defineComponent({
   },
   setup(props) {
     const prop = reactive(props)
-    return { prop }
+    const state = reactive({
+      date:''
+    })
+    onMounted(()=>{
+      state.date = 'asdsada'
+    })
+    return { prop, state}
   }
 })
 </script>
