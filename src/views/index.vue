@@ -11,7 +11,7 @@
           hoverable
           :bordered="false"
           size="small"
-          v-for="item in 4"
+          v-for="item in 2"
           :key="item"
           class="ui-card"
         >

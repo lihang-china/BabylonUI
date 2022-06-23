@@ -38,7 +38,7 @@ export default defineComponent({
       index: 0
     })
     onMounted(() => {
-      // router.push('/babylon')
+      router.push('/index')
     })
     return {
       state,
