@@ -22,7 +22,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, reactive, registerRuntimeCompiler } from 'vue'
+import { defineComponent, onMounted, reactive } from 'vue'
 import { CompressOutlined } from '@ant-design/icons-vue'
 export default defineComponent({
   props: {

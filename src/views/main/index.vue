@@ -4,39 +4,57 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-21 10:58:32
+ * @LastEditTime: 2022-06-23 11:22:16
 -->
 <template>
   <div class="container">
-    <a-space v-show="!state.show">
-      <a-spin size="large" />
-    </a-space>
     <canvas id="mycanvas" style="width: 100%; height: 100%"></canvas>
     <div class="left">
-      <my-card :title="'模型信息'">
-        <div>
-          Text Demo
-          <button @click="handleSelect">房间元</button>
-        </div>
+      <my-card :title="'模型信息'" class="card-meshinfo">
+        <ul>
+          <li v-for="(item, index) in state.meshList" :key="index">
+            <span>{{ item.label }}:</span>
+            <span>{{ state.meshData[item.value] }}</span>
+          </li>
+        </ul>
+      </my-card>
+       <my-card :title="'告警列表'" class="card-meshinfo">
+       
       </my-card>
     </div>
     <div class="bottom"></div>
     <div class="right"></div>
+    <transition name="fade">
+      <loading v-if="!state.show" :loading="state.loading" />
+    </transition>
   </div>
 </template>
 
 <script lang="ts">
+import loading from './components/loading.vue'
 import myCard from './components/mainCard.vue'
-import { defineComponent, onMounted, reactive, ref } from 'vue'
+import { defineComponent, onMounted, reactive } from 'vue'
 import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders'
 export default defineComponent({
   components: {
-    myCard
+    myCard,
+    loading
   },
   setup() {
     const state = reactive({
-      show: false
+      show: false,
+      loading: 0,
+      meshList: [
+        { label: '模型名称', value: 'name' },
+        { label: '模型信息', value: 'info' },
+        { label: '模型位置', value: 'path' }
+      ],
+      meshData: {
+        name: 'Mymesh',
+        info: '沿海建筑模型',
+        path: 'XX省 XX市 116号'
+      }
     })
     const babylon: any = {
       canvas: undefined,
@@ -148,44 +166,92 @@ export default defineComponent({
       babylon.scene = new BABYLON.Scene(babylon.engine)
       babylon.camera = new BABYLON.UniversalCamera(
         'UniversalCamera',
-        new BABYLON.Vector3(-300, 0, 0),
+        new BABYLON.Vector3(-2000, 1000, 0),
         babylon.scene
       )
-      babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.55, 0)
-      babylon.camera.position.y = 200
-      // 让相机响应用户操作
-      babylon.camera.attachControl(babylon.canvas, false)
-      babylon.scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8)
+      babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.58, 0)
+
+      babylon.scene.clearColor = new BABYLON.Color3(0.1, 0.1, 0.5)
       let background = BABYLON.MeshBuilder.CreateGround(
         'myGround',
-        { width: 10000, height: 10000, subdivisions: 1 },
+        { width: 10000, height: 10000, subdivisions: 10 },
         babylon.scene
       )
-      background.position.y = -0.5
-      //添加雾
-      babylon.scene.fogMode = BABYLON.Scene.FOGMODE_EXP
-      babylon.scene.fogColor = new BABYLON.Color3(0.9, 0.9, 0.9)
-      babylon.scene.fogDensity = 0.00005
-      let light2 = new BABYLON.HemisphericLight(
-        'dir01',
-        new BABYLON.Vector3(0, 20, 0),
+      background.position.y = -0.2
+      background.receiveShadows = true
+      let light = new BABYLON.HemisphericLight(
+        'light1',
+        new BABYLON.Vector3(0, 1, 0),
         babylon.scene
       )
-      light2.groundColor = new BABYLON.Color3(1, 1, 1)
-      light2.intensity = 0.7
-
+      // light.position = new BABYLON.Vector3(0, -1, 0)
+      light.intensity = 1
+      let skybox = BABYLON.Mesh.CreateBox(
+        'BackgroundSkybox',
+        10000,
+        babylon.scene,
+        undefined,
+        BABYLON.Mesh.BACKSIDE
+      )
+      let backgroundMaterial = new BABYLON.BackgroundMaterial(
+        'backgroundMaterial',
+        babylon.scene
+      )
+      backgroundMaterial.reflectionTexture = new BABYLON.CubeTexture(
+        'textures/TropicalSunnyDay',
+        babylon.scene
+      )
+      backgroundMaterial.reflectionTexture.coordinatesMode =
+        BABYLON.Texture.SKYBOX_MODE
+      skybox.material = backgroundMaterial
+      light.diffuse = new BABYLON.Color3(0.98, 0.98, 0.98)
+      let myMaterial = new BABYLON.StandardMaterial('myMaterial', babylon.scene)
+      myMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8)
+      background.material = myMaterial
       //碰撞检测
       babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1)
       babylon.scene.collisionsEnabled = true
       babylon.camera.checkCollisions = true
       background.checkCollisions = true
+      babylon.camera.attachControl(babylon.canvas, true)
+
       BABYLON.SceneLoader.ImportMesh(
-        '',
-        'https://raw.githubusercontent.com/lihang-china/BabylonUI/main/public/3d66.gltf',
-        '',
+        'mesh',
+        './',
+        '3d66.gltf',
         babylon.scene,
         (mesh) => {
+          babylon.scene.rootNodes[4]._children[0].position.y = 30
           state.show = true
+          let animationBox = new BABYLON.Animation(
+            'myAnimation',
+            'position',
+            100,
+            BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+          )
+          let keys = []
+          keys.push({
+            frame: 0,
+            value: new BABYLON.Vector3(-2000, 1000, 0)
+          })
+          keys.push({
+            frame: 60,
+            value: new BABYLON.Vector3(-800, 800, 0)
+          })
+          keys.push({
+            frame: 100,
+            value: new BABYLON.Vector3(-300, 350, 0)
+          })
+          animationBox.setKeys(keys)
+          //  animationRon.setKeys(key)
+          babylon.camera.animations = []
+          babylon.camera.animations.push(animationBox)
+          babylon.scene.beginAnimation(babylon.camera, 0, 100, false, 0.2)
+          // 让相机响应用户操作
+        },
+        (load) => {
+          state.loading = Number(((load.loaded / load.total) * 100).toFixed(0))
         }
       )
       window.addEventListener('click', function () {
@@ -194,7 +260,6 @@ export default defineComponent({
           babylon.scene.pointerY
         )
         console.log(pickResult, 'pickResult')
-        // pickResult.pickedMesh.position.y = 1
       })
       babylon.engine.runRenderLoop(function () {
         babylon.scene.render()
@@ -203,16 +268,6 @@ export default defineComponent({
     onMounted(() => {
       initBabylon()
       createScene()
-      let work = new Worker(
-        'https://raw.githubusercontent.com/lihang-china/BabylonUI/main/public/3d66.gltf'
-      )
-
-      // work.postMessage('hello worker')
-      // work.onmessage = (e) => {
-      //   console.log(`主进程收到了子进程发出的信息：${e.data}`)
-      //   // 主进程收到了子进程发出的信息：你好，我是子进程！
-      //   work.terminate()
-      // }
     })
     return {
       babylon,
@@ -259,17 +314,33 @@ export default defineComponent({
 button {
   padding: 5px 15px;
   border-radius: 3px;
-  background-color: rgba(10, 240, 255, 0.6);
+  background-color: rgba(252, 244, 138, 0.6);
   color: #fff;
   border: 0;
   &:nth-child(2) {
     left: 100px;
   }
 }
-.ant-space {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 99999999;
+.fade-leave-active {
+  transition: all 0.3s ease;
+}
+.fade-leave {
+  opacity: 1;
+}
+.fade-leave-to {
+  opacity: 0;
+}
+.card-meshinfo {
+  ul {
+    width: 100%;
+    padding: 0;
+    li {
+      list-style: none;
+      width: 100%;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+  }
 }
 </style>

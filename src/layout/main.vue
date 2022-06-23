@@ -85,8 +85,8 @@ export default defineComponent({
   padding: 0 10px;
   height: 97px;
   background: linear-gradient(
-    rgba(0, 20, 29, 0.8) 10%,
-    rgba(0, 20, 29, 0) 100%
+    rgba(0, 13, 19, 0.8) 10%,
+    rgba(0, 13, 19, 0) 80%
   );
   display: flex;
   justify-content: space-between;

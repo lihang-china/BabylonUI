@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-05-05 16:21:51
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-11 13:40:54
+ * @LastEditTime: 2022-06-22 15:52:48
 -->
 <template>
   <div class="container flex-flex">
@@ -38,7 +38,7 @@ export default defineComponent({
       index: 0
     })
     onMounted(() => {
-      router.push('/babylon')
+      // router.push('/babylon')
     })
     return {
       state,
