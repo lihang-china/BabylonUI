@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-01 16:17:10
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-17 17:01:03
+ * @LastEditTime: 2022-06-24 10:08:53
 -->
 <template>
   <div class="container">
@@ -86,7 +86,7 @@ export default defineComponent({
   height: 97px;
   background: linear-gradient(
     rgba(0, 13, 19, 0.8) 10%,
-    rgba(0, 13, 19, 0) 80%
+    rgba(0, 13, 19, 0) 100%
   );
   display: flex;
   justify-content: space-between;

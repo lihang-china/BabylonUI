@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-23 11:22:16
+ * @LastEditTime: 2022-06-24 12:58:22
 -->
 <template>
   <div class="container">
@@ -20,6 +20,7 @@
       </my-card>
       <my-card :title="'告警监控'" class="card-meshinfo">
         <a-table
+          :customRow="customRow"
           :pagination="false"
           size="small"
           :columns="state.columns"
@@ -37,40 +38,40 @@
 </template>
 
 <script lang="ts">
-import loading from "./components/loading.vue";
-import myCard from "./components/mainCard.vue";
-import { defineComponent, onMounted, reactive } from "vue";
-import * as BABYLON from "babylonjs";
-import "babylonjs-loaders";
+import loading from './components/loading.vue'
+import myCard from './components/mainCard.vue'
+import { defineComponent, onMounted, reactive } from 'vue'
+import * as BABYLON from 'babylonjs'
+import 'babylonjs-loaders'
 export default defineComponent({
   components: {
     myCard,
-    loading,
+    loading
   },
   setup() {
     const state = reactive({
       show: false,
       loading: 0,
       meshList: [
-        { label: "模型名称", value: "name" },
-        { label: "模型信息", value: "info" },
-        { label: "模型位置", value: "path" },
+        { label: '模型名称', value: 'name' },
+        { label: '模型信息', value: 'info' },
+        { label: '模型位置', value: 'path' }
       ],
       meshData: {
-        name: "Mymesh",
-        info: "沿海建筑模型",
-        path: "XX省 XX市 116号",
+        name: 'Mymesh',
+        info: '沿海机场模型',
+        path: 'XX省 XX市 116号'
       },
       columns: [
-        { title: "监控名称", key: "name", dataIndex: "name" },
-        { title: "区域", key: "area", dataIndex: "area" },
+        { title: '监控名称', key: 'name', dataIndex: 'name' },
+        { title: '区域', key: 'area', dataIndex: 'area' },
         {
-          title: "时间",
-          key: "time",
-          dataIndex: "time",
+          title: '时间',
+          key: 'time',
+          dataIndex: 'time',
           ellipsis: true,
-          align: "center",
-        },
+          align: 'center'
+        }
         // {
         //   title: "操作",
         //   key: "handle",
@@ -79,235 +80,192 @@ export default defineComponent({
         // },
       ],
       data: [
-        { name: "Row-1", area: "西路口", time: "2022-06-06 10:22:01" },
-        { name: "Tcar-1", area: "停车场", time: "2022-06-06 10:22:01" },
-        { name: "Row-2", area: "东路口", time: "2022-06-06 10:22:01" },
-        { name: "Tik-1", area: "餐厅", time: "2022-06-06 10:22:01" },
-        { name: "Tcic-2", area: "商店", time: "2022-06-06 10:22:01" },
-      ],
-    });
+        { name: 'Row-1', area: '西路口', time: '2022-06-06 10:22:01' },
+        { name: 'Tcar-1', area: '停车场', time: '2022-06-06 10:22:01' },
+        { name: 'Row-2', area: '东路口', time: '2022-06-06 10:22:01' },
+        { name: 'Tik-1', area: '餐厅', time: '2022-06-06 10:22:01' },
+        { name: 'Tcic-2', area: '商店', time: '2022-06-06 10:22:01' }
+      ]
+    })
+    const customRow = (record: any, index: number) => {
+      return {
+        onClick: () => {
+          babylon.camera.position = new BABYLON.Vector3(10, 50, 160)
+          babylon.camera.rotation.y = 3.2
+          let myMaterial = new BABYLON.StandardMaterial(
+            'myMaterial',
+            babylon.scene
+          )
+          myMaterial.emissiveColor = new BABYLON.Color3(0, 0.29, 0.61)
+          myMaterial.diffuseColor = new BABYLON.Color3(0, 0.72, 1)
+          let cylinder = BABYLON.Mesh.CreateCylinder(
+            'cylinder',
+            18,
+            0.2,
+            40,
+            100,
+            1,
+            babylon.scene
+          )
+          cylinder.position = new BABYLON.Vector3(35, -3, 75)
+          cylinder.rotation.z = -0.5
+          cylinder.material = myMaterial
+          myMaterial.alpha = 0.3
+          myMaterial.wireframe = true
+          let animationRon = new BABYLON.Animation(
+            'myAnimation',
+            'rotation',
+            100,
+            BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+            BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
+          )
+          let key = []
+          key.push({
+            frame: 0,
+            value: new BABYLON.Vector3(0, 0, -0.5)
+          })
+          key.push({
+            frame: 33.3,
+            value: new BABYLON.Vector3(0.2, -0.3, -0.5)
+          })
+          key.push({
+            frame: 66.3,
+            value: new BABYLON.Vector3(0, 0.3, -0.5)
+          })
+          key.push({
+            frame: 100,
+            value: new BABYLON.Vector3(0, 0, -0.5)
+          })
+          cylinder.setPivotPoint(
+            new BABYLON.Vector3(0, 10, 0),
+            BABYLON.Space.LOCAL
+          )
+          animationRon.setKeys(key)
+          cylinder.animations = []
+          cylinder.animations.push(animationRon)
+          babylon.scene.beginAnimation(cylinder, 0, 100, true, 0.4)
+        }
+      }
+    }
     const babylon: any = {
       canvas: undefined,
       engine: undefined,
       scene: undefined,
-      camera: undefined,
-    };
+      camera: undefined
+    }
     const initBabylon = () => {
-      babylon.canvas = document.getElementById("mycanvas");
-      babylon.engine = new BABYLON.Engine(babylon.canvas, true);
-    };
-    const handleSelect = () => {
-      let animationBox = new BABYLON.Animation(
-        "myAnimation",
-        "position",
-        100,
-        BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-      );
-      let animationRon = new BABYLON.Animation(
-        "myAnimation",
-        "rotation",
-        100,
-        BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-      );
-      let key = [];
-      key.push({
-        frame: 0,
-        value: new BABYLON.Vector3(-40, 1.5, 3),
-      });
-      key.push({
-        frame: 20,
-        value: new BABYLON.Vector3(14.5, 1.5, 3),
-      });
-      key.push({
-        frame: 40,
-        value: new BABYLON.Vector3(14.4, 1.5, -13),
-      });
-      key.push({
-        frame: 58,
-        value: new BABYLON.Vector3(5, 1.5, -15),
-      });
-      key.push({
-        frame: 80,
-        value: new BABYLON.Vector3(4.2, 1.5, -11),
-      });
-      key.push({
-        frame: 85,
-        value: new BABYLON.Vector3(7, 1.5, -11),
-      });
-      let keys = [];
-      keys.push({
-        frame: 0,
-        value: new BABYLON.Vector3(0, 20.5, 0),
-      });
-      keys.push({
-        frame: 10,
-        value: new BABYLON.Vector3(0, 20.6, 0),
-      });
-      keys.push({
-        frame: 15,
-        value: new BABYLON.Vector3(0, 20.7, 0),
-      });
-      keys.push({
-        frame: 18,
-        value: new BABYLON.Vector3(0, 21.5, 0),
-      });
-      keys.push({
-        frame: 20,
-        value: new BABYLON.Vector3(0, 21.8, 0),
-      });
-      keys.push({
-        frame: 35,
-        value: new BABYLON.Vector3(0, 22.2, 0),
-      });
-      keys.push({
-        frame: 40,
-        value: new BABYLON.Vector3(0, 23.8, 0),
-      });
-      keys.push({
-        frame: 50,
-        value: new BABYLON.Vector3(0, 24, 0),
-      });
-      keys.push({
-        frame: 60,
-        value: new BABYLON.Vector3(0, 25.1, 0),
-      });
-      keys.push({
-        frame: 65,
-        value: new BABYLON.Vector3(0, 25.6, 0),
-      });
-      keys.push({
-        frame: 82,
-        value: new BABYLON.Vector3(0, 25.6, 0),
-      });
-      keys.push({
-        frame: 86,
-        value: new BABYLON.Vector3(0, 25.3, 0),
-      });
-      animationBox.setKeys(key);
-      animationRon.setKeys(keys);
-      babylon.camera.animations = [];
-      babylon.camera.animations.push(animationBox);
-      babylon.camera.animations.push(animationRon);
-      babylon.scene.beginAnimation(babylon.camera, 0, 100, true, 0.08);
-    };
+      babylon.canvas = document.getElementById('mycanvas')
+      babylon.engine = new BABYLON.Engine(babylon.canvas, true)
+    }
     const createScene = () => {
-      babylon.scene = new BABYLON.Scene(babylon.engine);
+      babylon.scene = new BABYLON.Scene(babylon.engine)
       babylon.camera = new BABYLON.UniversalCamera(
-        "UniversalCamera",
+        'UniversalCamera',
         new BABYLON.Vector3(-2000, 1000, 0),
         babylon.scene
-      );
-      babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.58, 0);
-
-      babylon.scene.clearColor = new BABYLON.Color3(0.1, 0.1, 0.5);
+      )
+      babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0)
+      babylon.scene.clearColor = new BABYLON.Color3(0.1, 0.1, 0.5)
       let background = BABYLON.MeshBuilder.CreateGround(
-        "myGround",
+        'myGround',
         { width: 10000, height: 10000, subdivisions: 1 },
         babylon.scene
-      );
-      background.position.y = 0;
-      background.receiveShadows = true;
+      )
+      background.receiveShadows = true
       let light = new BABYLON.HemisphericLight(
-        "light1",
+        'light1',
         new BABYLON.Vector3(0, 1, 0),
         babylon.scene
-      );
+      )
       // light.position = new BABYLON.Vector3(0, -1, 0)
-      light.intensity = 1;
+      light.intensity = 1
       let skybox = BABYLON.Mesh.CreateBox(
-        "BackgroundSkybox",
+        'BackgroundSkybox',
         10000,
         babylon.scene,
         undefined,
         BABYLON.Mesh.BACKSIDE
-      );
+      )
       let backgroundMaterial = new BABYLON.BackgroundMaterial(
-        "backgroundMaterial",
+        'backgroundMaterial',
         babylon.scene
-      );
+      )
       backgroundMaterial.reflectionTexture = new BABYLON.CubeTexture(
-        "textures/TropicalSunnyDay",
+        'textures/TropicalSunnyDay',
         babylon.scene
-      );
+      )
       backgroundMaterial.reflectionTexture.coordinatesMode =
-        BABYLON.Texture.SKYBOX_MODE;
-      skybox.material = backgroundMaterial;
-      light.diffuse = new BABYLON.Color3(0.98, 0.98, 0.98);
-      let myMaterial = new BABYLON.StandardMaterial(
-        "myMaterial",
-        babylon.scene
-      );
-      myMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
-      background.material = myMaterial;
+        BABYLON.Texture.SKYBOX_MODE
+      skybox.material = backgroundMaterial
+      light.diffuse = new BABYLON.Color3(0.98, 0.98, 0.98)
+      let myMaterial = new BABYLON.StandardMaterial('myMaterial', babylon.scene)
+      myMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8)
+      background.material = myMaterial
       //碰撞检测
-      babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
-      babylon.scene.collisionsEnabled = true;
-      babylon.camera.checkCollisions = true;
-      background.checkCollisions = true;
-      babylon.camera.attachControl(babylon.canvas, true);
-
+      babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1)
+      babylon.scene.collisionsEnabled = true
+      babylon.camera.checkCollisions = true
+      background.checkCollisions = true
+      babylon.camera.attachControl(babylon.canvas, true)
       BABYLON.SceneLoader.ImportMesh(
-        "mesh",
-        "./",
-        "3d66.gltf",
+        'mesh',
+        './',
+        '3d66.gltf',
         babylon.scene,
         (mesh) => {
-          babylon.scene.rootNodes[4]._children[0].position.y = 30;
-          state.show = true;
+          babylon.scene.rootNodes[4]._children[0].position =
+            new BABYLON.Vector3(0, 0.2, 0)
+          state.show = true
           let animationBox = new BABYLON.Animation(
-            "myAnimation",
-            "position",
+            'myAnimation',
+            'position',
             100,
             BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
             BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-          );
-          let keys = [];
+          )
+          let keys = []
           keys.push({
             frame: 0,
-            value: new BABYLON.Vector3(-2000, 1000, 0),
-          });
+            value: new BABYLON.Vector3(-2000, 1000, 0)
+          })
           keys.push({
             frame: 60,
-            value: new BABYLON.Vector3(-800, 800, 0),
-          });
+            value: new BABYLON.Vector3(-800, 800, 0)
+          })
           keys.push({
             frame: 100,
-            value: new BABYLON.Vector3(-300, 350, 0),
-          });
-          animationBox.setKeys(keys);
-          //  animationRon.setKeys(key)
-          babylon.camera.animations = [];
-          babylon.camera.animations.push(animationBox);
-          babylon.scene.beginAnimation(babylon.camera, 0, 100, false, 0.2);
-          // 让相机响应用户操作
+            value: new BABYLON.Vector3(-300, 350, 0)
+          })
+          animationBox.setKeys(keys)
+          babylon.camera.animations = []
+          babylon.camera.animations.push(animationBox)
+          babylon.scene.beginAnimation(babylon.camera, 0, 100, false, 0.4)
         },
         (load) => {
-          state.loading = Number(((load.loaded / load.total) * 100).toFixed(0));
+          state.loading = Number(((load.loaded / load.total) * 100).toFixed(0))
         }
-      );
-      window.addEventListener("click", function () {
+      )
+      window.addEventListener('click', function () {
         let pickResult = babylon.scene.pick(
           babylon.scene.pointerX,
           babylon.scene.pointerY
-        );
-      });
+        )
+      })
       babylon.engine.runRenderLoop(function () {
-        babylon.scene.render();
-      });
-    };
+        babylon.scene.render()
+      })
+    }
     onMounted(() => {
-      initBabylon();
-      createScene();
-    });
+      initBabylon()
+      createScene()
+    })
     return {
       babylon,
       state,
-      handleSelect,
-    };
-  },
-});
+      customRow
+    }
+  }
+})
 </script>
 <style lang="scss" scoped>
 .container {
