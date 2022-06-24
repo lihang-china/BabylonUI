@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-24 16:55:43
+ * @LastEditTime: 2022-06-24 16:59:47
 -->
 <template>
   <div class="container">
@@ -117,44 +117,11 @@ export default defineComponent({
             new BABYLON.Vector3(0, 10, 0),
             BABYLON.Space.LOCAL
           )
+          //渲染动画
           babylon.scene.registerBeforeRender(function () {
             time += 0.01 * babylon.scene.getAnimationRatio()
-            console.log(time,'asdsadad');
-            
             cylinder.rotation.y = 1.2 * Math.sin(time)
           })
-          // let animationRon = new BABYLON.Animation(
-          //   'myAnimation',
-          //   'rotation',
-          //   100,
-          //   BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-          //   BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
-          // )
-          // let key = []
-          // key.push({
-          //   frame: 0,
-          //   value: new BABYLON.Vector3(0, 0, -0.5)
-          // })
-          // key.push({
-          //   frame: 33.3,
-          //   value: new BABYLON.Vector3(0.2, -0.3, -0.5)
-          // })
-          // key.push({
-          //   frame: 66.3,
-          //   value: new BABYLON.Vector3(0, 0.3, -0.5)
-          // })
-          // key.push({
-          //   frame: 100,
-          //   value: new BABYLON.Vector3(0, 0, -0.5)
-          // })
-          // cylinder.setPivotPoint(
-          //   new BABYLON.Vector3(0, 10, 0),
-          //   BABYLON.Space.LOCAL
-          // )
-          // animationRon.setKeys(key)
-          // cylinder.animations = []
-          // cylinder.animations.push(animationRon)
-          // babylon.scene.beginAnimation(cylinder, 0, 100, true, 0.4)
         }
       }
     }
