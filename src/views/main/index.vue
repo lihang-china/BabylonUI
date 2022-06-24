@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-24 12:58:22
+ * @LastEditTime: 2022-06-24 16:55:43
 -->
 <template>
   <div class="container">
@@ -90,7 +90,7 @@ export default defineComponent({
     const customRow = (record: any, index: number) => {
       return {
         onClick: () => {
-          babylon.camera.position = new BABYLON.Vector3(10, 50, 160)
+          babylon.camera.position = new BABYLON.Vector3(10, 50, 150)
           babylon.camera.rotation.y = 3.2
           let myMaterial = new BABYLON.StandardMaterial(
             'myMaterial',
@@ -112,38 +112,49 @@ export default defineComponent({
           cylinder.material = myMaterial
           myMaterial.alpha = 0.3
           myMaterial.wireframe = true
-          let animationRon = new BABYLON.Animation(
-            'myAnimation',
-            'rotation',
-            100,
-            BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-            BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
-          )
-          let key = []
-          key.push({
-            frame: 0,
-            value: new BABYLON.Vector3(0, 0, -0.5)
-          })
-          key.push({
-            frame: 33.3,
-            value: new BABYLON.Vector3(0.2, -0.3, -0.5)
-          })
-          key.push({
-            frame: 66.3,
-            value: new BABYLON.Vector3(0, 0.3, -0.5)
-          })
-          key.push({
-            frame: 100,
-            value: new BABYLON.Vector3(0, 0, -0.5)
-          })
+          let time = 0
           cylinder.setPivotPoint(
             new BABYLON.Vector3(0, 10, 0),
             BABYLON.Space.LOCAL
           )
-          animationRon.setKeys(key)
-          cylinder.animations = []
-          cylinder.animations.push(animationRon)
-          babylon.scene.beginAnimation(cylinder, 0, 100, true, 0.4)
+          babylon.scene.registerBeforeRender(function () {
+            time += 0.01 * babylon.scene.getAnimationRatio()
+            console.log(time,'asdsadad');
+            
+            cylinder.rotation.y = 1.2 * Math.sin(time)
+          })
+          // let animationRon = new BABYLON.Animation(
+          //   'myAnimation',
+          //   'rotation',
+          //   100,
+          //   BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+          //   BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
+          // )
+          // let key = []
+          // key.push({
+          //   frame: 0,
+          //   value: new BABYLON.Vector3(0, 0, -0.5)
+          // })
+          // key.push({
+          //   frame: 33.3,
+          //   value: new BABYLON.Vector3(0.2, -0.3, -0.5)
+          // })
+          // key.push({
+          //   frame: 66.3,
+          //   value: new BABYLON.Vector3(0, 0.3, -0.5)
+          // })
+          // key.push({
+          //   frame: 100,
+          //   value: new BABYLON.Vector3(0, 0, -0.5)
+          // })
+          // cylinder.setPivotPoint(
+          //   new BABYLON.Vector3(0, 10, 0),
+          //   BABYLON.Space.LOCAL
+          // )
+          // animationRon.setKeys(key)
+          // cylinder.animations = []
+          // cylinder.animations.push(animationRon)
+          // babylon.scene.beginAnimation(cylinder, 0, 100, true, 0.4)
         }
       }
     }
@@ -163,6 +174,12 @@ export default defineComponent({
         'UniversalCamera',
         new BABYLON.Vector3(-2000, 1000, 0),
         babylon.scene
+      )
+      var motionblur = new BABYLON.MotionBlurPostProcess(
+        'mb', // The name of the effect.
+        babylon.scene, // The scene containing the objects to blur according to their velocity.
+        2.0, // The required width/height ratio to downsize to before computing the render pass.
+        babylon.camera // The camera to apply the render pass to.
       )
       babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0)
       babylon.scene.clearColor = new BABYLON.Color3(0.1, 0.1, 0.5)
