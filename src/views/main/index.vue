@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-25 13:56:15
+ * @LastEditTime: 2022-06-25 17:12:48
 -->
 <template>
   <div class="container">
@@ -33,7 +33,7 @@
           <div id="myChart" style="width: 100%; height: 230px"></div>
         </div>
       </my-card>
-      <my-card :title="'告警监控'" class="right-card">
+      <my-card :title="'告警监控'" class="card-meshinfo">
         <a-table
           :customRow="customRow"
           :pagination="false"
@@ -49,9 +49,7 @@
     </div>
     <div class="bottom"></div>
     <div class="right">
-      <div class="card-meshinfo">
-        <span> 切换模型主题</span>
-      </div>
+      <div class="right-card card-meshstatus"></div>
     </div>
     <transition name="fade">
       <loading v-if="false" :loading="state.loading" />
@@ -62,16 +60,27 @@
 <script lang="ts">
 import loading from './components/loading.vue'
 import myCard from './components/mainCard.vue'
-import { defineComponent, onMounted, reactive } from 'vue'
+import { defineComponent, onMounted, reactive, watch } from 'vue'
 import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders'
 import * as echarts from 'echarts'
+import store from '@/store'
 export default defineComponent({
   components: {
     myCard,
     loading
   },
   setup() {
+    watch(
+      () => store.state.meshState,
+      (val) => {
+        meshChange(val)
+      }
+    )
+    let timer: any = undefined
+    let skybox: any = undefined
+    let light: any = undefined
+    let ligth2: any = undefined
     const btnList = [
       { label: '人员流动分析', value: '1' },
       { label: '流量报警', value: '2' },
@@ -79,6 +88,7 @@ export default defineComponent({
     ]
     let cylinder: any = undefined
     const state = reactive({
+      meshState: 1,
       chartList: [820, 932, 901, 934, 1290, 1330, 1320],
       radio: '1',
       show: false,
@@ -127,6 +137,38 @@ export default defineComponent({
       engine: undefined,
       scene: undefined,
       camera: undefined
+    }
+    const meshChange = (val: number) => {
+      ligth2 = new BABYLON.PointLight(
+        'pointLight',
+        new BABYLON.Vector3(-82, 1, 200),
+        babylon.scene
+      )
+      //        let light3 =ligth2
+      // ligth2.position = new BABYLON.Vector3(-105,1,200)
+      //
+      ligth2.diffuse = BABYLON.Color3.Red()
+      timer ? clearInterval(timer) : ''
+      let speed = 10
+      if (val === 1) {
+        timer = setInterval(() => {
+          if (light.intensity <= 0.2) {
+            clearInterval(timer)
+          } else {
+            light.intensity -= 0.01
+            skybox.material.alpha -= 0.01
+          }
+        }, speed)
+      } else {
+        timer = setInterval(() => {
+          if (light.intensity >= 1) {
+            clearInterval(timer)
+          } else {
+            light.intensity += 0.01
+            skybox.material.alpha += 0.01
+          }
+        }, speed)
+      }
     }
     const btnChange = (row: { value: string }) => {
       state.radio = row.value
@@ -194,21 +236,21 @@ export default defineComponent({
         babylon.camera
       )
       babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0)
-      babylon.scene.clearColor = new BABYLON.Color3(0.1, 0.1, 0.5)
+      babylon.scene.clearColor = new BABYLON.Color3(0, 0.07, 0.18)
       let background = BABYLON.MeshBuilder.CreateGround(
         'myGround',
         { width: 10000, height: 10000, subdivisions: 1 },
         babylon.scene
       )
       background.receiveShadows = true
-      let light = new BABYLON.HemisphericLight(
+      light = new BABYLON.HemisphericLight(
         'light1',
         new BABYLON.Vector3(0, 1, 0),
         babylon.scene
       )
-      // light.position = new BABYLON.Vector3(0, -1, 0)
       light.intensity = 1
-      let skybox = BABYLON.Mesh.CreateBox(
+
+      skybox = BABYLON.Mesh.CreateBox(
         'BackgroundSkybox',
         10000,
         babylon.scene,
@@ -476,7 +518,7 @@ button {
   }
 }
 .right-card {
-  border: 1px solid red;
+  display: flex;
   width: 100%;
 }
 </style>

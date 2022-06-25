@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-01 16:17:10
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-24 10:08:53
+ * @LastEditTime: 2022-06-25 15:10:05
 -->
 <template>
   <div class="container">
@@ -25,9 +25,20 @@
           </a-menu-item>
         </a-menu>
       </div>
-      <div class="header-time">
-        <span>{{ moment(state.time).format('HH:mm:ss') }}</span>
-        <span>{{ moment(state.time).format('YYYY/MM/DD') }} 年月日</span>
+      <div class="header-right">
+        <img
+          @click="changeState"
+          :src="
+            state.meshState === 0
+              ? require('@/assets/sun.png')
+              : require('@/assets/moon.png')
+          "
+          alt=""
+        />
+        <div class="header-time">
+          <span>{{ moment(state.time).format('HH:mm:ss') }}</span>
+          <span>{{ moment(state.time).format('YYYY/MM/DD') }} 年月日</span>
+        </div>
       </div>
     </div>
     <router-view> </router-view>
@@ -38,6 +49,7 @@ import { RadarChartOutlined } from '@ant-design/icons-vue'
 import { defineComponent, onMounted, reactive } from 'vue'
 import moment from 'moment'
 import { useRouter } from 'vue-router'
+import store from '@/store'
 export default defineComponent({
   components: {
     RadarChartOutlined
@@ -45,6 +57,7 @@ export default defineComponent({
   setup() {
     const router = useRouter()
     const state = reactive<any>({
+      meshState: 0,
       menuList: [
         { label: '综合首页' },
         { label: '智能巡检' },
@@ -53,6 +66,10 @@ export default defineComponent({
       ],
       time: new Date()
     })
+    const changeState = () => {
+      state.meshState === 0 ? (state.meshState = 1) : (state.meshState = 0)
+      store.state.meshState = state.meshState
+    }
     onMounted(() => {
       router.push('/gis')
       setInterval(() => {
@@ -61,7 +78,8 @@ export default defineComponent({
     })
     return {
       state,
-      moment
+      moment,
+      changeState
     }
   }
 })
@@ -94,26 +112,7 @@ export default defineComponent({
   * {
     color: #fff;
   }
-  .header-time {
-    display: flex;
-    flex-direction: column;
-    width: 265px;
-    margin: 0 16px;
-    align-items: flex-end;
-    span {
-      text-align: left;
-      &:nth-child(1) {
-        font-size: 28px;
-        font-weight: 600;
-        letter-spacing: 3.5px;
-        line-height: 30px;
-        font-family: elefont;
-      }
-      &:nth-child(2) {
-        font-size: 12px;
-      }
-    }
-  }
+
   .header-menu {
     flex-grow: 1;
     margin: 0 16px;
@@ -137,6 +136,38 @@ export default defineComponent({
       }
       .ant-menu-item-selected {
         color: #fff;
+      }
+    }
+  }
+  .header-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    .header-time {
+      display: flex;
+      flex-direction: column;
+      margin-right: 16px;
+      align-items: flex-end;
+      width: 140px;
+      span {
+        text-align: center;
+        &:nth-child(1) {
+          font-size: 30px;
+          font-weight: 600;
+          letter-spacing: 5px;
+          line-height: 30px;
+          font-family: elefont;
+        }
+        &:nth-child(2) {
+          font-size: 14px;
+        }
+      }
+    }
+    img {
+      height: 40px;
+      margin-left: 10px;
+      &:hover {
+        cursor: pointer;
       }
     }
   }
