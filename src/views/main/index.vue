@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-24 16:59:47
+ * @LastEditTime: 2022-06-25 13:56:15
 -->
 <template>
   <div class="container">
@@ -18,21 +18,43 @@
           </li>
         </ul>
       </my-card>
-      <my-card :title="'告警监控'" class="card-meshinfo">
+      <my-card>
+        <div class="group-chart">
+          <group class="btn-group">
+            <button
+              @click="btnChange(item)"
+              v-for="(item, index) in btnList"
+              :key="index"
+              :class="[state.radio === item.value ? 'active-btn' : '']"
+            >
+              {{ item.label }}
+            </button>
+          </group>
+          <div id="myChart" style="width: 100%; height: 230px"></div>
+        </div>
+      </my-card>
+      <my-card :title="'告警监控'" class="right-card">
         <a-table
           :customRow="customRow"
           :pagination="false"
           size="small"
           :columns="state.columns"
           :data-source="state.data"
+          :scroll="{
+            y: 200
+          }"
         >
         </a-table>
       </my-card>
     </div>
     <div class="bottom"></div>
-    <div class="right"></div>
+    <div class="right">
+      <div class="card-meshinfo">
+        <span> 切换模型主题</span>
+      </div>
+    </div>
     <transition name="fade">
-      <loading v-if="!state.show" :loading="state.loading" />
+      <loading v-if="false" :loading="state.loading" />
     </transition>
   </div>
 </template>
@@ -43,13 +65,22 @@ import myCard from './components/mainCard.vue'
 import { defineComponent, onMounted, reactive } from 'vue'
 import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders'
+import * as echarts from 'echarts'
 export default defineComponent({
   components: {
     myCard,
     loading
   },
   setup() {
+    const btnList = [
+      { label: '人员流动分析', value: '1' },
+      { label: '流量报警', value: '2' },
+      { label: '入口流量分析', value: '3' }
+    ]
+    let cylinder: any = undefined
     const state = reactive({
+      chartList: [820, 932, 901, 934, 1290, 1330, 1320],
+      radio: '1',
       show: false,
       loading: 0,
       meshList: [
@@ -84,52 +115,65 @@ export default defineComponent({
         { name: 'Tcar-1', area: '停车场', time: '2022-06-06 10:22:01' },
         { name: 'Row-2', area: '东路口', time: '2022-06-06 10:22:01' },
         { name: 'Tik-1', area: '餐厅', time: '2022-06-06 10:22:01' },
+        { name: 'Tcic-2', area: '商店', time: '2022-06-06 10:22:01' },
+        { name: 'Row-2', area: '东路口', time: '2022-06-06 10:22:01' },
+        { name: 'Tik-1', area: '餐厅', time: '2022-06-06 10:22:01' },
         { name: 'Tcic-2', area: '商店', time: '2022-06-06 10:22:01' }
       ]
     })
-    const customRow = (record: any, index: number) => {
-      return {
-        onClick: () => {
-          babylon.camera.position = new BABYLON.Vector3(10, 50, 150)
-          babylon.camera.rotation.y = 3.2
-          let myMaterial = new BABYLON.StandardMaterial(
-            'myMaterial',
-            babylon.scene
-          )
-          myMaterial.emissiveColor = new BABYLON.Color3(0, 0.29, 0.61)
-          myMaterial.diffuseColor = new BABYLON.Color3(0, 0.72, 1)
-          let cylinder = BABYLON.Mesh.CreateCylinder(
-            'cylinder',
-            18,
-            0.2,
-            40,
-            100,
-            1,
-            babylon.scene
-          )
-          cylinder.position = new BABYLON.Vector3(35, -3, 75)
-          cylinder.rotation.z = -0.5
-          cylinder.material = myMaterial
-          myMaterial.alpha = 0.3
-          myMaterial.wireframe = true
-          let time = 0
-          cylinder.setPivotPoint(
-            new BABYLON.Vector3(0, 10, 0),
-            BABYLON.Space.LOCAL
-          )
-          //渲染动画
-          babylon.scene.registerBeforeRender(function () {
-            time += 0.01 * babylon.scene.getAnimationRatio()
-            cylinder.rotation.y = 1.2 * Math.sin(time)
-          })
-        }
-      }
-    }
+
     const babylon: any = {
       canvas: undefined,
       engine: undefined,
       scene: undefined,
       camera: undefined
+    }
+    const btnChange = (row: { value: string }) => {
+      state.radio = row.value
+      state.chartList.sort(() => {
+        return Math.random() > 0.5 ? -1 : 1
+      })
+      createChart()
+    }
+    const customRow = (record: any, index: number) => {
+      return {
+        onClick: () => {
+          if (!cylinder) {
+            babylon.camera.position = new BABYLON.Vector3(10, 50, 150)
+            babylon.camera.rotation.y = 3.2
+            let myMaterial = new BABYLON.StandardMaterial(
+              'myMaterial',
+              babylon.scene
+            )
+            myMaterial.emissiveColor = new BABYLON.Color3(0, 0.29, 0.61)
+            myMaterial.diffuseColor = new BABYLON.Color3(0, 0.72, 1)
+            cylinder = BABYLON.Mesh.CreateCylinder(
+              'cylinder',
+              18,
+              0.2,
+              40,
+              100,
+              1,
+              babylon.scene
+            )
+            cylinder.position = new BABYLON.Vector3(35, -3, 75)
+            cylinder.rotation.z = -0.5
+            cylinder.material = myMaterial
+            myMaterial.alpha = 0.3
+            myMaterial.wireframe = true
+            let time = 0
+            cylinder.setPivotPoint(
+              new BABYLON.Vector3(0, 10, 0),
+              BABYLON.Space.LOCAL
+            )
+            //渲染动画
+            babylon.scene.registerBeforeRender(function () {
+              time += 0.01 * babylon.scene.getAnimationRatio()
+              cylinder.rotation.y = 1.2 * Math.sin(time)
+            })
+          }
+        }
+      }
     }
     const initBabylon = () => {
       babylon.canvas = document.getElementById('mycanvas')
@@ -142,11 +186,12 @@ export default defineComponent({
         new BABYLON.Vector3(-2000, 1000, 0),
         babylon.scene
       )
+      //动态模糊效果
       var motionblur = new BABYLON.MotionBlurPostProcess(
-        'mb', // The name of the effect.
-        babylon.scene, // The scene containing the objects to blur according to their velocity.
-        2.0, // The required width/height ratio to downsize to before computing the render pass.
-        babylon.camera // The camera to apply the render pass to.
+        'mb',
+        babylon.scene,
+        0.1,
+        babylon.camera
       )
       babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0)
       babylon.scene.clearColor = new BABYLON.Color3(0.1, 0.1, 0.5)
@@ -239,14 +284,68 @@ export default defineComponent({
         babylon.scene.render()
       })
     }
+    const createChart = () => {
+      let chartDom = document.querySelector('#myChart')
+      if (chartDom !== null) {
+        let myChart = echarts.init(chartDom as HTMLDivElement)
+        myChart.setOption({
+          grid: {
+            x: 30,
+            y: 30,
+            x2: 0,
+            y2: 30
+          },
+          xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            show: false
+          },
+          yAxis: {
+            type: 'value',
+            axisLabel: {
+              textStyle: {
+                color: '#fff'
+              }
+            },
+            splitLine: {
+              //网格线样式
+              lineStyle: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              show: true
+            }
+          },
+          series: [
+            {
+              data: state.chartList,
+              type: 'line',
+              areaStyle: {
+                color: 'rgba(24, 212, 221, 0.3)'
+              },
+              itemStyle: {
+                normal: {
+                  color: 'rgba(24, 212, 221, 0.6)',
+                  lineStyle: {
+                    color: 'rgba(24, 212, 221, 0.6)' //改变折线颜色
+                  }
+                }
+              }
+            }
+          ]
+        })
+      }
+    }
     onMounted(() => {
       initBabylon()
       createScene()
+      createChart()
     })
     return {
       babylon,
       state,
-      customRow
+      customRow,
+      btnList,
+      btnChange
     }
   }
 })
@@ -265,14 +364,14 @@ export default defineComponent({
 }
 .right,
 .left {
-  width: 320px;
+  width: 340px;
   height: 100%;
   z-index: 10;
   background-color: rgba(0, 20, 29, 0.2);
   // background: linear-gradient(90deg,rgba(0, 20, 29, 0.2) 40%,rgba(0, 20, 29, 0) 100%);
   backdrop-filter: saturate(100%) blur(5px);
   padding: 10px;
-  padding-top: 95px;
+  padding-top: 110px;
 }
 .right {
   width: 240px;
@@ -304,6 +403,32 @@ button {
 .fade-leave-to {
   opacity: 0;
 }
+.group-chart {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.btn-group {
+  display: flex;
+  justify-content: space-between;
+  button {
+    border-radius: 0;
+    font-size: 8px;
+    padding: 8px 10px;
+    background-color: rgba(168, 168, 168, 0);
+    border: 1px solid rgb(199, 199, 199);
+    color: rgb(220, 220, 220);
+    transition: all 0.3s;
+    &:hover {
+      cursor: pointer;
+      background-color: rgba(41, 41, 41, 0.2) !important;
+    }
+  }
+  .active-btn {
+    border: 1px solid #18fefe;
+    color: rgb(255, 255, 255);
+  }
+}
 .card-meshinfo {
   ul {
     width: 100%;
@@ -316,6 +441,7 @@ button {
       justify-content: space-between;
     }
   }
+
   ::v-deep .ant-table {
     background: rgba(0, 0, 0, 0);
     th,
@@ -333,5 +459,24 @@ button {
       background: rgba(0, 0, 0, 0);
     }
   }
+}
+::v-deep .ant-table-body {
+  &::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 0px;
+    background: #73737285;
+  }
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: 0;
+    border-radius: 0;
+    background: #ffffff1a;
+  }
+}
+.right-card {
+  border: 1px solid red;
+  width: 100%;
 }
 </style>

@@ -103,6 +103,7 @@ export default defineComponent({
   }
   .card-container {
     padding: 10px;
+    padding-bottom: 20px;
     display: flex;
     color: #fff;
   }
