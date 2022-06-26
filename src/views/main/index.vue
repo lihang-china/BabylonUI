@@ -30,7 +30,7 @@
               {{ item.label }}
             </button>
           </group>
-          <div id="myChart" style="width: 100%; height: 230px"></div>
+          <div id="myChart" style="width: 100%; height: 1.3rem"></div>
         </div>
       </my-card>
       <my-card :title="'告警监控'" class="card-meshinfo">
@@ -41,7 +41,7 @@
           :columns="state.columns"
           :data-source="state.data"
           :scroll="{
-            y: 200
+            y: '1rem',
           }"
         >
         </a-table>
@@ -58,61 +58,61 @@
 </template>
 
 <script lang="ts">
-import loading from './components/loading.vue'
-import myCard from './components/mainCard.vue'
-import { defineComponent, onMounted, reactive, watch } from 'vue'
-import * as BABYLON from 'babylonjs'
-import 'babylonjs-loaders'
-import * as echarts from 'echarts'
-import store from '@/store'
+import loading from "./components/loading.vue";
+import myCard from "./components/mainCard.vue";
+import { defineComponent, onMounted, reactive, watch } from "vue";
+import * as BABYLON from "babylonjs";
+import "babylonjs-loaders";
+import * as echarts from "echarts";
+import store from "@/store";
 export default defineComponent({
   components: {
     myCard,
-    loading
+    loading,
   },
   setup() {
     watch(
       () => store.state.meshState,
       (val) => {
-        meshChange(val)
+        meshChange(val);
       }
-    )
-    let timer: any = undefined
-    let skybox: any = undefined
-    let light: any = undefined
-    let ligth2: any = undefined
+    );
+    let timer: any = undefined;
+    let skybox: any = undefined;
+    let light: any = undefined;
+    let ligth2: any = undefined;
     const btnList = [
-      { label: '人员流动分析', value: '1' },
-      { label: '流量报警', value: '2' },
-      { label: '入口流量分析', value: '3' }
-    ]
-    let cylinder: any = undefined
+      { label: "人员流动分析", value: "1" },
+      { label: "流量报警", value: "2" },
+      { label: "入口流量分析", value: "3" },
+    ];
+    let cylinder: any = undefined;
     const state = reactive({
       meshState: 1,
       chartList: [820, 932, 901, 934, 1290, 1330, 1320],
-      radio: '1',
+      radio: "1",
       show: false,
       loading: 0,
       meshList: [
-        { label: '模型名称', value: 'name' },
-        { label: '模型信息', value: 'info' },
-        { label: '模型位置', value: 'path' }
+        { label: "模型名称", value: "name" },
+        { label: "模型信息", value: "info" },
+        { label: "模型位置", value: "path" },
       ],
       meshData: {
-        name: 'Mymesh',
-        info: '沿海机场模型',
-        path: 'XX省 XX市 116号'
+        name: "Mymesh",
+        info: "沿海机场模型",
+        path: "XX省 XX市 116号",
       },
       columns: [
-        { title: '监控名称', key: 'name', dataIndex: 'name' },
-        { title: '区域', key: 'area', dataIndex: 'area' },
+        { title: "监控名称", key: "name", dataIndex: "name" },
+        { title: "区域", key: "area", dataIndex: "area" },
         {
-          title: '时间',
-          key: 'time',
-          dataIndex: 'time',
+          title: "时间",
+          key: "time",
+          dataIndex: "time",
           ellipsis: true,
-          align: 'center'
-        }
+          align: "center",
+        },
         // {
         //   title: "操作",
         //   key: "handle",
@@ -121,282 +121,285 @@ export default defineComponent({
         // },
       ],
       data: [
-        { name: 'Row-1', area: '西路口', time: '2022-06-06 10:22:01' },
-        { name: 'Tcar-1', area: '停车场', time: '2022-06-06 10:22:01' },
-        { name: 'Row-2', area: '东路口', time: '2022-06-06 10:22:01' },
-        { name: 'Tik-1', area: '餐厅', time: '2022-06-06 10:22:01' },
-        { name: 'Tcic-2', area: '商店', time: '2022-06-06 10:22:01' },
-        { name: 'Row-2', area: '东路口', time: '2022-06-06 10:22:01' },
-        { name: 'Tik-1', area: '餐厅', time: '2022-06-06 10:22:01' },
-        { name: 'Tcic-2', area: '商店', time: '2022-06-06 10:22:01' }
-      ]
-    })
+        { name: "Row-1", area: "西路口", time: "2022-06-06 10:22:01" },
+        { name: "Tcar-1", area: "停车场", time: "2022-06-06 10:22:01" },
+        { name: "Row-2", area: "东路口", time: "2022-06-06 10:22:01" },
+        { name: "Tik-1", area: "餐厅", time: "2022-06-06 10:22:01" },
+        { name: "Tcic-2", area: "商店", time: "2022-06-06 10:22:01" },
+        { name: "Row-2", area: "东路口", time: "2022-06-06 10:22:01" },
+        { name: "Tik-1", area: "餐厅", time: "2022-06-06 10:22:01" },
+        { name: "Tcic-2", area: "商店", time: "2022-06-06 10:22:01" },
+      ],
+    });
 
     const babylon: any = {
       canvas: undefined,
       engine: undefined,
       scene: undefined,
-      camera: undefined
-    }
+      camera: undefined,
+    };
     const meshChange = (val: number) => {
-      ligth2 = new BABYLON.PointLight(
-        'pointLight',
-        new BABYLON.Vector3(-82, 1, 200),
-        babylon.scene
-      )
+
       //        let light3 =ligth2
       // ligth2.position = new BABYLON.Vector3(-105,1,200)
       //
-      ligth2.diffuse = BABYLON.Color3.Red()
-      timer ? clearInterval(timer) : ''
-      let speed = 10
+      // ligth2.diffuse = BABYLON.Color3.Red();
+
+      timer ? clearInterval(timer) : "";
+      let speed = 10;
       if (val === 1) {
         timer = setInterval(() => {
           if (light.intensity <= 0.2) {
-            clearInterval(timer)
+            clearInterval(timer);
           } else {
-            light.intensity -= 0.01
-            skybox.material.alpha -= 0.01
+            light.intensity -= 0.01;
+            skybox.material.alpha -= 0.01;
           }
-        }, speed)
+        }, speed);
       } else {
         timer = setInterval(() => {
           if (light.intensity >= 1) {
-            clearInterval(timer)
+            clearInterval(timer);
           } else {
-            light.intensity += 0.01
-            skybox.material.alpha += 0.01
+            light.intensity += 0.01;
+            skybox.material.alpha += 0.01;
           }
-        }, speed)
+        }, speed);
       }
-    }
+    };
     const btnChange = (row: { value: string }) => {
-      state.radio = row.value
+      state.radio = row.value;
       state.chartList.sort(() => {
-        return Math.random() > 0.5 ? -1 : 1
-      })
-      createChart()
-    }
+        return Math.random() > 0.5 ? -1 : 1;
+      });
+      createChart();
+    };
     const customRow = (record: any, index: number) => {
       return {
         onClick: () => {
+          babylon.camera.position = new BABYLON.Vector3(10, 50, 150);
+          babylon.camera.rotation.y = 3.2;
+            babylon.camera.rotation.x =0.9;
+
           if (!cylinder) {
-            babylon.camera.position = new BABYLON.Vector3(10, 50, 150)
-            babylon.camera.rotation.y = 3.2
             let myMaterial = new BABYLON.StandardMaterial(
-              'myMaterial',
+              "myMaterial",
               babylon.scene
-            )
-            myMaterial.emissiveColor = new BABYLON.Color3(0, 0.29, 0.61)
-            myMaterial.diffuseColor = new BABYLON.Color3(0, 0.72, 1)
+            );
+            myMaterial.emissiveColor = new BABYLON.Color3(0, 0.29, 0.61);
+            myMaterial.diffuseColor = new BABYLON.Color3(0, 0.72, 1);
             cylinder = BABYLON.Mesh.CreateCylinder(
-              'cylinder',
+              "cylinder",
               18,
               0.2,
               40,
               100,
               1,
               babylon.scene
-            )
-            cylinder.position = new BABYLON.Vector3(35, -3, 75)
-            cylinder.rotation.z = -0.5
-            cylinder.material = myMaterial
-            myMaterial.alpha = 0.3
-            myMaterial.wireframe = true
-            let time = 0
+            );
+            cylinder.position = new BABYLON.Vector3(35, -3, 75);
+            cylinder.rotation.z = -0.5;
+            cylinder.material = myMaterial;
+            myMaterial.alpha = 0.3;
+            myMaterial.wireframe = true;
+            let time = 0;
             cylinder.setPivotPoint(
               new BABYLON.Vector3(0, 10, 0),
               BABYLON.Space.LOCAL
-            )
+            );
             //渲染动画
             babylon.scene.registerBeforeRender(function () {
-              time += 0.01 * babylon.scene.getAnimationRatio()
-              cylinder.rotation.y = 1.2 * Math.sin(time)
-            })
+              time += 0.01 * babylon.scene.getAnimationRatio();
+              cylinder.rotation.y = 1.2 * Math.sin(time);
+            });
           }
-        }
-      }
-    }
+        },
+      };
+    };
     const initBabylon = () => {
-      babylon.canvas = document.getElementById('mycanvas')
-      babylon.engine = new BABYLON.Engine(babylon.canvas, true)
-    }
+      babylon.canvas = document.getElementById("mycanvas");
+      babylon.engine = new BABYLON.Engine(babylon.canvas, true);
+    };
     const createScene = () => {
-      babylon.scene = new BABYLON.Scene(babylon.engine)
+      babylon.scene = new BABYLON.Scene(babylon.engine);
       babylon.camera = new BABYLON.UniversalCamera(
-        'UniversalCamera',
+        "UniversalCamera",
         new BABYLON.Vector3(-2000, 1000, 0),
         babylon.scene
-      )
+      );
       //动态模糊效果
       var motionblur = new BABYLON.MotionBlurPostProcess(
-        'mb',
+        "mb",
         babylon.scene,
         0.1,
         babylon.camera
-      )
-      babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0)
-      babylon.scene.clearColor = new BABYLON.Color3(0, 0.07, 0.18)
+      );
+      babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0);
+      babylon.scene.clearColor = new BABYLON.Color3(0, 0.07, 0.18);
       let background = BABYLON.MeshBuilder.CreateGround(
-        'myGround',
+        "myGround",
         { width: 10000, height: 10000, subdivisions: 1 },
         babylon.scene
-      )
-      background.receiveShadows = true
+      );
+      background.receiveShadows = true;
       light = new BABYLON.HemisphericLight(
-        'light1',
+        "light1",
         new BABYLON.Vector3(0, 1, 0),
         babylon.scene
-      )
-      light.intensity = 1
+      );
+      light.intensity = 1;
 
       skybox = BABYLON.Mesh.CreateBox(
-        'BackgroundSkybox',
+        "BackgroundSkybox",
         10000,
         babylon.scene,
         undefined,
         BABYLON.Mesh.BACKSIDE
-      )
+      );
       let backgroundMaterial = new BABYLON.BackgroundMaterial(
-        'backgroundMaterial',
+        "backgroundMaterial",
         babylon.scene
-      )
+      );
       backgroundMaterial.reflectionTexture = new BABYLON.CubeTexture(
-        'textures/TropicalSunnyDay',
+        "textures/TropicalSunnyDay",
         babylon.scene
-      )
+      );
       backgroundMaterial.reflectionTexture.coordinatesMode =
-        BABYLON.Texture.SKYBOX_MODE
-      skybox.material = backgroundMaterial
-      light.diffuse = new BABYLON.Color3(0.98, 0.98, 0.98)
-      let myMaterial = new BABYLON.StandardMaterial('myMaterial', babylon.scene)
-      myMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8)
-      background.material = myMaterial
+        BABYLON.Texture.SKYBOX_MODE;
+      skybox.material = backgroundMaterial;
+      light.diffuse = new BABYLON.Color3(0.98, 0.98, 0.98);
+      let myMaterial = new BABYLON.StandardMaterial(
+        "myMaterial",
+        babylon.scene
+      );
+      myMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+      background.material = myMaterial;
       //碰撞检测
-      babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1)
-      babylon.scene.collisionsEnabled = true
-      babylon.camera.checkCollisions = true
-      background.checkCollisions = true
-      babylon.camera.attachControl(babylon.canvas, true)
+      babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
+      babylon.scene.collisionsEnabled = true;
+      babylon.camera.checkCollisions = true;
+      background.checkCollisions = true;
+      babylon.camera.attachControl(babylon.canvas, true);
       BABYLON.SceneLoader.ImportMesh(
-        'mesh',
-        './',
-        '3d66.gltf',
+        "mesh",
+        "./",
+        "3d66.gltf",
         babylon.scene,
         (mesh) => {
           babylon.scene.rootNodes[4]._children[0].position =
-            new BABYLON.Vector3(0, 0.2, 0)
-          state.show = true
+            new BABYLON.Vector3(0, 0.2, 0);
+          state.show = true;
           let animationBox = new BABYLON.Animation(
-            'myAnimation',
-            'position',
+            "myAnimation",
+            "position",
             100,
             BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
             BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-          )
-          let keys = []
+          );
+          let keys = [];
           keys.push({
             frame: 0,
-            value: new BABYLON.Vector3(-2000, 1000, 0)
-          })
+            value: new BABYLON.Vector3(-2000, 1000, 0),
+          });
           keys.push({
             frame: 60,
-            value: new BABYLON.Vector3(-800, 800, 0)
-          })
+            value: new BABYLON.Vector3(-800, 800, 0),
+          });
           keys.push({
             frame: 100,
-            value: new BABYLON.Vector3(-300, 350, 0)
-          })
-          animationBox.setKeys(keys)
-          babylon.camera.animations = []
-          babylon.camera.animations.push(animationBox)
-          babylon.scene.beginAnimation(babylon.camera, 0, 100, false, 0.4)
+            value: new BABYLON.Vector3(-300, 350, 0),
+          });
+          animationBox.setKeys(keys);
+          babylon.camera.animations = [];
+          babylon.camera.animations.push(animationBox);
+          babylon.scene.beginAnimation(babylon.camera, 0, 100, false, 0.4);
         },
         (load) => {
-          state.loading = Number(((load.loaded / load.total) * 100).toFixed(0))
+          state.loading = Number(((load.loaded / load.total) * 100).toFixed(0));
         }
-      )
-      window.addEventListener('click', function () {
+      );
+      window.addEventListener("click", function () {
         let pickResult = babylon.scene.pick(
           babylon.scene.pointerX,
           babylon.scene.pointerY
-        )
-      })
+        );
+      });
       babylon.engine.runRenderLoop(function () {
-        babylon.scene.render()
-      })
-    }
+        babylon.scene.render();
+      });
+    };
     const createChart = () => {
-      let chartDom = document.querySelector('#myChart')
+      let chartDom = document.querySelector("#myChart");
       if (chartDom !== null) {
-        let myChart = echarts.init(chartDom as HTMLDivElement)
+        let myChart = echarts.init(chartDom as HTMLDivElement);
         myChart.setOption({
           grid: {
             x: 30,
             y: 30,
             x2: 0,
-            y2: 30
+            y2: 30,
           },
           xAxis: {
-            type: 'category',
+            type: "category",
             boundaryGap: false,
-            show: false
+            show: false,
           },
           yAxis: {
-            type: 'value',
+            type: "value",
             axisLabel: {
               textStyle: {
-                color: '#fff'
-              }
+                color: "#fff",
+              },
             },
             splitLine: {
               //网格线样式
               lineStyle: {
-                color: 'rgba(255, 255, 255, 0.1)'
+                color: "rgba(255, 255, 255, 0.1)",
               },
-              show: true
-            }
+              show: true,
+            },
           },
           series: [
             {
               data: state.chartList,
-              type: 'line',
+              type: "line",
               areaStyle: {
-                color: 'rgba(24, 212, 221, 0.3)'
+                color: "rgba(24, 212, 221, 0.3)",
               },
               itemStyle: {
                 normal: {
-                  color: 'rgba(24, 212, 221, 0.6)',
+                  color: "rgba(24, 212, 221, 0.6)",
                   lineStyle: {
-                    color: 'rgba(24, 212, 221, 0.6)' //改变折线颜色
-                  }
-                }
-              }
-            }
-          ]
-        })
+                    color: "rgba(24, 212, 221, 0.6)", //改变折线颜色
+                  },
+                },
+              },
+            },
+          ],
+        });
       }
-    }
+    };
     onMounted(() => {
-      initBabylon()
-      createScene()
-      createChart()
-    })
+      initBabylon();
+      createScene();
+      createChart();
+    });
     return {
       babylon,
       state,
       customRow,
       btnList,
-      btnChange
-    }
-  }
-})
+      btnChange,
+    };
+  },
+});
 </script>
 <style lang="scss" scoped>
 .container {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+  font-size: 14px;
 }
 #mycanvas {
   position: absolute;
@@ -406,17 +409,17 @@ export default defineComponent({
 }
 .right,
 .left {
-  width: 340px;
+  width: 370px;
   height: 100%;
   z-index: 10;
   background-color: rgba(0, 20, 29, 0.2);
   // background: linear-gradient(90deg,rgba(0, 20, 29, 0.2) 40%,rgba(0, 20, 29, 0) 100%);
   backdrop-filter: saturate(100%) blur(5px);
   padding: 10px;
-  padding-top: 110px;
+  padding-top: 120px;
 }
 .right {
-  width: 240px;
+  width: 260px;
 }
 .bottom {
   z-index: 10;
@@ -427,6 +430,7 @@ export default defineComponent({
   height: 100px;
 }
 button {
+  font-size: 12px;
   padding: 5px 15px;
   border-radius: 3px;
   background-color: rgba(252, 244, 138, 0.6);
@@ -461,6 +465,7 @@ button {
     border: 1px solid rgb(199, 199, 199);
     color: rgb(220, 220, 220);
     transition: all 0.3s;
+    font-size: 14px;
     &:hover {
       cursor: pointer;
       background-color: rgba(41, 41, 41, 0.2) !important;
@@ -486,6 +491,9 @@ button {
 
   ::v-deep .ant-table {
     background: rgba(0, 0, 0, 0);
+    * {
+      font-size: 14px !important;
+    }
     th,
     td {
       color: #fff;

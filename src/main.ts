@@ -7,6 +7,7 @@
  * @LastEditTime: 2022-06-02 13:09:04
  */
 import { createApp } from "vue";
+import 'amfe-flexible'
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";

@@ -11,7 +11,7 @@
     <div class="header-nav">
       <div class="nav-title">
         <radar-chart-outlined
-          style="margin-right: 8px; font-size: 48px; color: #0af0ff"
+          style="margin-right: 8px; font-size: 0.25rem; color: #0af0ff"
         />
         <div class="right">
           <div class="top"><span>SAMRT </span><span>Tag</span></div>
@@ -36,8 +36,8 @@
           alt=""
         />
         <div class="header-time">
-          <span>{{ moment(state.time).format('HH:mm:ss') }}</span>
-          <span>{{ moment(state.time).format('YYYY/MM/DD') }} 年月日</span>
+          <span>{{ moment(state.time).format("HH:mm:ss") }}</span>
+          <span>{{ moment(state.time).format("YYYY/MM/DD") }} 年月日</span>
         </div>
       </div>
     </div>
@@ -45,52 +45,52 @@
   </div>
 </template>
 <script lang="ts">
-import { RadarChartOutlined } from '@ant-design/icons-vue'
-import { defineComponent, onMounted, reactive } from 'vue'
-import moment from 'moment'
-import { useRouter } from 'vue-router'
-import store from '@/store'
+import { RadarChartOutlined } from "@ant-design/icons-vue";
+import { defineComponent, onMounted, reactive } from "vue";
+import moment from "moment";
+import { useRouter } from "vue-router";
+import store from "@/store";
 export default defineComponent({
   components: {
-    RadarChartOutlined
+    RadarChartOutlined,
   },
   setup() {
-    const router = useRouter()
+    const router = useRouter();
     const state = reactive<any>({
       meshState: 0,
       menuList: [
-        { label: '综合首页' },
-        { label: '智能巡检' },
-        { label: '设备管理' },
-        { label: '实时告警' }
+        { label: "综合首页" },
+        { label: "智能巡检" },
+        { label: "设备管理" },
+        { label: "实时告警" },
       ],
-      time: new Date()
-    })
+      time: new Date(),
+    });
     const changeState = () => {
-      state.meshState === 0 ? (state.meshState = 1) : (state.meshState = 0)
-      store.state.meshState = state.meshState
-    }
+      state.meshState === 0 ? (state.meshState = 1) : (state.meshState = 0);
+      store.state.meshState = state.meshState;
+    };
     onMounted(() => {
-      router.push('/gis')
+      router.push("/gis");
       setInterval(() => {
-        state.time = new Date()
-      }, 1000)
-    })
+        state.time = new Date();
+      }, 1000);
+    });
     return {
       state,
       moment,
-      changeState
-    }
-  }
-})
+      changeState,
+    };
+  },
+});
 </script>
 
 <style lang="scss" scoped>
 @font-face {
-  font-family: 'colfont';
-  src: url('../font/Coalition-v2-1.ttf');
-  font-family: 'elefont';
-  src: url('../font/ele.ttf');
+  font-family: "colfont";
+  src: url("../font/Coalition-v2-1.ttf");
+  font-family: "elefont";
+  src: url("../font/ele.ttf");
 }
 .container {
   padding: 0;
@@ -101,7 +101,7 @@ export default defineComponent({
   z-index: 999;
   width: 100%;
   padding: 0 10px;
-  height: 97px;
+  height: 100px;
   background: linear-gradient(
     rgba(0, 13, 19, 0.8) 10%,
     rgba(0, 13, 19, 0) 100%
@@ -152,9 +152,9 @@ export default defineComponent({
       span {
         text-align: center;
         &:nth-child(1) {
-          font-size: 30px;
+          font-size: 34px;
           font-weight: 600;
-          letter-spacing: 5px;
+          letter-spacing: 3px;
           line-height: 30px;
           font-family: elefont;
         }
@@ -185,12 +185,12 @@ export default defineComponent({
         align-items: center;
         span {
           &:nth-child(1) {
-            font-size: 28px;
+            font-size: 34px;
             color: #fff;
-            line-height: 32px;
+            line-height: 38px;
             text-shadow: 0px 0px 5px rgb(255, 255, 255);
             letter-spacing: 2px;
-            font-family: 'colfont';
+            font-family: "colfont";
             font-weight: bold;
           }
           &:nth-child(2) {

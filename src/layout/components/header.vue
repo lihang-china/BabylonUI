@@ -25,20 +25,20 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'
-import { UpOutlined, DownOutlined } from '@ant-design/icons-vue'
+import { defineComponent, reactive } from "vue";
+import { UpOutlined, DownOutlined } from "@ant-design/icons-vue";
 export default defineComponent({
   components: {
     UpOutlined,
-    DownOutlined
+    DownOutlined,
   },
   setup() {
     const state = reactive<any>({
-      isShow: false
-    })
-    return { state }
-  }
-})
+      isShow: false,
+    });
+    return { state };
+  },
+});
 </script>
 
 <style lang="scss" scoped>
