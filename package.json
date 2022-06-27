@@ -9,7 +9,6 @@
     },
     "dependencies": {
         "@amap/amap-jsapi-loader": "^1.0.1",
-        "amfe-flexible": "^2.2.1",
         "ant-design-vue": "^3.2.9",
         "babylonjs": "^5.9.1",
         "babylonjs-loaders": "^5.9.1",
@@ -33,6 +32,7 @@
         "@vue/compiler-sfc": "^3.0.0",
         "@vue/eslint-config-prettier": "^6.0.0",
         "@vue/eslint-config-typescript": "^7.0.0",
+        "amfe-flexible": "^2.2.1",
         "compression-webpack-plugin": "^5.0.1",
         "eslint": "^6.7.2",
         "eslint-plugin-prettier": "^3.3.1",

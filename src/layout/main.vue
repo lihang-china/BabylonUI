@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-01 16:17:10
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-25 15:10:05
+ * @LastEditTime: 2022-06-27 10:28:19
 -->
 <template>
   <div class="container">
@@ -15,7 +15,7 @@
         />
         <div class="right">
           <div class="top"><span>SAMRT </span><span>Tag</span></div>
-          <span>SDV UI-Kit GIS BIGDATA CONTROL </span>
+          <span>SDV UI-Kit GIS BIGDATA  </span>
         </div>
       </div>
       <div class="header-menu">
@@ -36,8 +36,8 @@
           alt=""
         />
         <div class="header-time">
-          <span>{{ moment(state.time).format("HH:mm:ss") }}</span>
-          <span>{{ moment(state.time).format("YYYY/MM/DD") }} 年月日</span>
+          <span>{{ moment(state.time).format('HH:mm:ss') }}</span>
+          <span>{{ moment(state.time).format('YYYY/MM/DD') }} 年月日</span>
         </div>
       </div>
     </div>
@@ -45,52 +45,52 @@
   </div>
 </template>
 <script lang="ts">
-import { RadarChartOutlined } from "@ant-design/icons-vue";
-import { defineComponent, onMounted, reactive } from "vue";
-import moment from "moment";
-import { useRouter } from "vue-router";
-import store from "@/store";
+import { RadarChartOutlined } from '@ant-design/icons-vue'
+import { defineComponent, onMounted, reactive } from 'vue'
+import moment from 'moment'
+import { useRouter } from 'vue-router'
+import store from '@/store'
 export default defineComponent({
   components: {
-    RadarChartOutlined,
+    RadarChartOutlined
   },
   setup() {
-    const router = useRouter();
+    const router = useRouter()
     const state = reactive<any>({
       meshState: 0,
       menuList: [
-        { label: "综合首页" },
-        { label: "智能巡检" },
-        { label: "设备管理" },
-        { label: "实时告警" },
+        { label: '综合首页' },
+        { label: '智能巡检' },
+        { label: '设备管理' },
+        { label: '实时告警' }
       ],
-      time: new Date(),
-    });
+      time: new Date()
+    })
     const changeState = () => {
-      state.meshState === 0 ? (state.meshState = 1) : (state.meshState = 0);
-      store.state.meshState = state.meshState;
-    };
+      state.meshState === 0 ? (state.meshState = 1) : (state.meshState = 0)
+      store.state.meshState = state.meshState
+    }
     onMounted(() => {
-      router.push("/gis");
+      router.push('/gis')
       setInterval(() => {
-        state.time = new Date();
-      }, 1000);
-    });
+        state.time = new Date()
+      }, 1000)
+    })
     return {
       state,
       moment,
-      changeState,
-    };
-  },
-});
+      changeState
+    }
+  }
+})
 </script>
 
 <style lang="scss" scoped>
 @font-face {
-  font-family: "colfont";
-  src: url("../font/Coalition-v2-1.ttf");
-  font-family: "elefont";
-  src: url("../font/ele.ttf");
+  font-family: 'colfont';
+  src: url('../font/Coalition-v2-1.ttf');
+  font-family: 'elefont';
+  src: url('../font/ele.ttf');
 }
 .container {
   padding: 0;
@@ -148,13 +148,12 @@ export default defineComponent({
       flex-direction: column;
       margin-right: 16px;
       align-items: flex-end;
-      width: 140px;
       span {
         text-align: center;
         &:nth-child(1) {
           font-size: 34px;
           font-weight: 600;
-          letter-spacing: 3px;
+          letter-spacing: 5px;
           line-height: 30px;
           font-family: elefont;
         }
@@ -165,7 +164,7 @@ export default defineComponent({
     }
     img {
       height: 40px;
-      margin-left: 10px;
+      margin-right: 16px;
       &:hover {
         cursor: pointer;
       }
@@ -180,6 +179,7 @@ export default defineComponent({
     .right {
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       .top {
         display: flex;
         align-items: center;
@@ -190,7 +190,7 @@ export default defineComponent({
             line-height: 38px;
             text-shadow: 0px 0px 5px rgb(255, 255, 255);
             letter-spacing: 2px;
-            font-family: "colfont";
+            font-family: 'colfont';
             font-weight: bold;
           }
           &:nth-child(2) {
@@ -199,7 +199,7 @@ export default defineComponent({
             line-height: 26px;
             height: 28px;
             color: #fff;
-            font-size: 12px;
+            font-size: 8px;
             border: 1px solid #fff;
             border-radius: 5px;
             text-align: center;
@@ -207,8 +207,8 @@ export default defineComponent({
         }
       }
       span {
-        max-width: 200px;
-        font-size: 12px;
+        font-size: 8px;
+        white-space: nowrap;
       }
     }
   }

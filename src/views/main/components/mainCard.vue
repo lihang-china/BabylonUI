@@ -8,7 +8,7 @@
           >
         </div>
         <div class="top-des">
-          <span>{{ prop.desc.title }}</span> {{ state.date }}
+          <span>{{ prop.desc.title }}</span> {{ prop.desc.value }}
         </div>
       </div>
       <div class="bottom-line">
@@ -34,8 +34,8 @@ export default defineComponent({
       type: Object,
       default: () => {
         return {
-          title: 'Label',
-          value: 'value'
+          title: '',
+          value: ''
         }
       }
     }
@@ -46,12 +46,12 @@ export default defineComponent({
   setup(props) {
     const prop = reactive(props)
     const state = reactive({
-      date:''
+      date: ''
     })
-    onMounted(()=>{
+    onMounted(() => {
       state.date = 'asdsada'
     })
-    return { prop, state}
+    return { prop, state }
   }
 })
 </script>
@@ -103,7 +103,6 @@ export default defineComponent({
   }
   .card-container {
     padding: 10px;
-    padding-bottom: 20px;
     display: flex;
     color: #fff;
   }
