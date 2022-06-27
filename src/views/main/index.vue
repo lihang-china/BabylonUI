@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-27 11:24:16
+ * @LastEditTime: 2022-06-27 16:56:42
 -->
 <template>
   <div class="container">
@@ -85,6 +85,7 @@ export default defineComponent({
     let skybox: any = undefined
     let light: any = undefined
     let ligth2: any = undefined
+    let mySphere: any = undefined
     const btnList = [
       { label: '人员流动分析', value: '1' },
       { label: '流量报警', value: '2' },
@@ -174,6 +175,32 @@ export default defineComponent({
         return Math.random() > 0.5 ? -1 : 1
       })
       createChart()
+      if (!mySphere) {
+        let mat = new BABYLON.StandardMaterial('mat', babylon.scene)
+        mat.alpha = 0.5
+        mat.emissiveColor = new BABYLON.Color3(0, 1, 1)
+        let gl = new BABYLON.GlowLayer('glow', babylon.scene, {
+          mainTextureSamples: 4
+        })
+        mySphere = BABYLON.Mesh.CreateTorus('torus', 150, 3, 150, babylon.scene)
+        mySphere.material = mat
+        mySphere.position = new BABYLON.Vector3(0, -1, 0)
+        gl.addIncludedOnlyMesh(mySphere)
+        let light = new BABYLON.PointLight(
+          'pointLight',
+          new BABYLON.Vector3(0, -1, 0),
+          babylon.scene
+        )
+        setInterval(() => {
+          if (mySphere.scaling._z > 10) {
+            mySphere.scaling.z = 0
+            mySphere.scaling.x = 0
+          } else {
+            mySphere.scaling.z += 0.6
+            mySphere.scaling.x += 0.6
+          }
+        }, 10)
+      }
     }
     const customRow = (record: any, index: number) => {
       return {
@@ -209,6 +236,7 @@ export default defineComponent({
               BABYLON.Space.LOCAL
             )
             //渲染动画
+            skybox.material.alpha = 0.7
             babylon.scene.registerBeforeRender(function () {
               time += 0.01 * babylon.scene.getAnimationRatio()
               cylinder.rotation.y = 1.2 * Math.sin(time)
@@ -236,20 +264,27 @@ export default defineComponent({
         babylon.camera
       )
       babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0)
+
       babylon.scene.clearColor = new BABYLON.Color3(0, 0.07, 0.18)
       let background = BABYLON.MeshBuilder.CreateGround(
         'myGround',
-        { width: 10000, height: 10000, subdivisions: 1 },
+        { width: 10000, height: 10000, subdivisions: 10 },
         babylon.scene
       )
-      background.receiveShadows = true
+      // background.receiveShadows = true
+      background.position.y = -0.5
+      var me = new BABYLON.StandardMaterial('myMaterial', babylon.scene)
+      me.emissiveColor = new BABYLON.Color3(1, 1, 1)
+      me.wireframe = true
+
       light = new BABYLON.HemisphericLight(
         'light1',
         new BABYLON.Vector3(0, 1, 0),
         babylon.scene
       )
       light.intensity = 1
-
+      light.diffuseColor = new BABYLON.Color3(1, 1, 1)
+      light.specular = BABYLON.Color3.Black()
       skybox = BABYLON.Mesh.CreateBox(
         'BackgroundSkybox',
         10000,
@@ -270,8 +305,13 @@ export default defineComponent({
       skybox.material = backgroundMaterial
       light.diffuse = new BABYLON.Color3(0.98, 0.98, 0.98)
       let myMaterial = new BABYLON.StandardMaterial('myMaterial', babylon.scene)
-      myMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8)
+      // myMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8)
+      let Textur = new BABYLON.Texture('textures/ground.png', babylon.scene)
+      Textur.uScale = 100
+      Textur.vScale = 100
+      myMaterial.diffuseTexture = Textur
       background.material = myMaterial
+
       //碰撞检测
       babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1)
       babylon.scene.collisionsEnabled = true
@@ -284,8 +324,8 @@ export default defineComponent({
         '3d66.gltf',
         babylon.scene,
         (mesh) => {
-          babylon.scene.rootNodes[4]._children[0].position =
-            new BABYLON.Vector3(0, 0.2, 0)
+          // babylon.scene.rootNodes[4]._children[0].position =
+          //   new BABYLON.Vector3(0, 0.2, 0)
           state.show = true
           let animationBox = new BABYLON.Animation(
             'myAnimation',
@@ -334,7 +374,7 @@ export default defineComponent({
           grid: {
             x: 30,
             y: 30,
-            x2: 0,
+            x2: 10,
             y2: 10
           },
           xAxis: {

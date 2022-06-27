@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-01 16:17:10
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-27 10:28:19
+ * @LastEditTime: 2022-06-27 11:47:31
 -->
 <template>
   <div class="container">
@@ -15,7 +15,7 @@
         />
         <div class="right">
           <div class="top"><span>SAMRT </span><span>Tag</span></div>
-          <span>SDV UI-Kit GIS BIGDATA  </span>
+          <span>SDV UI-Kit GIS BIGDATA </span>
         </div>
       </div>
       <div class="header-menu">
@@ -180,6 +180,7 @@ export default defineComponent({
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      text-align: left;
       .top {
         display: flex;
         align-items: center;

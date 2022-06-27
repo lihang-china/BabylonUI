@@ -37,7 +37,6 @@ export default defineComponent({
       var chartDom = document.getElementById('main')!
       var myChart = echarts.init(chartDom)
       var option: EChartsOption
-
       option = {
         color: ['#80FFA5', '#00DDFF', '#37A2FF', '#FF0087', '#FFBF00'],
         tooltip: {
