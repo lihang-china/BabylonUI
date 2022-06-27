@@ -10,8 +10,8 @@
     "dependencies": {
         "@amap/amap-jsapi-loader": "^1.0.1",
         "ant-design-vue": "^3.2.9",
-        "babylonjs": "^5.12.2",
-        "babylonjs-loaders": "^5.12.2",
+        "babylonjs": "^5.9.0",
+        "babylonjs-loaders": "^5.9.0",
         "echarts": "^5.3.2",
         "lib-flexible": "^0.3.2",
         "moment": "^2.29.3",
