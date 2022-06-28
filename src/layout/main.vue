@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-01 16:17:10
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-27 11:47:31
+ * @LastEditTime: 2022-06-28 15:58:16
 -->
 <template>
   <div class="container">
@@ -151,14 +151,15 @@ export default defineComponent({
       span {
         text-align: center;
         &:nth-child(1) {
-          font-size: 34px;
+          font-size: 32px;
           font-weight: 600;
           letter-spacing: 5px;
-          line-height: 30px;
+          line-height: 34px;
           font-family: elefont;
         }
         &:nth-child(2) {
           font-size: 14px;
+          letter-spacing: 1px;
         }
       }
     }
