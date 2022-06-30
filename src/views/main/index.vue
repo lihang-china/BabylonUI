@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-29 20:02:33
+ * @LastEditTime: 2022-06-30 16:07:31
 -->
 <template>
   <div class="container">
@@ -55,7 +55,13 @@
     <button class="fixed-btn" @click="meshReset()"><reload-outlined /></button>
     <div class="bottom"></div>
     <div class="right">
-      <div class="right-card card-meshstatus"></div>
+      <div class="right-card">
+        <hgroup>
+          <h2>人员流动分析</h2>
+          <div><span>[出入]</span><span>流量数据</span></div>
+        </hgroup>
+        <div id="right-chart" style="height: 100%; width: 100%"></div>
+      </div>
     </div>
     <transition name="fade">
       <loading v-if="false" :loading="state.loading" />
@@ -165,6 +171,7 @@ export default defineComponent({
       }
     const meshReset = () => {
       //重置模型纹理
+      babylon.scene.unfreezeActiveMeshes()
       light.intensity = 1 //半球光亮度
       if (babylon.scene.getMeshById('cylinder')) {
         //判断摄像头特效是否存在
@@ -189,24 +196,28 @@ export default defineComponent({
     }
     const meshChange = (val: number) => {
       // 天空动态切换
+      babylon.scene.unfreezeActiveMeshes()
       timer ? clearInterval(timer) : '' //判断计时器是否存在
       let speed = 10 // 昼夜切换速度
       if (val === 1) {
         timer = setInterval(() => {
           if (light.intensity <= 0.2) {
             clearInterval(timer)
+            light.diffuse = new BABYLON.Color3(0.1, 0.1, 0.1)
+            babylon.scene.freezeActiveMeshes()
           } else {
             light.intensity -= 0.01 //灯光明暗递减
-            skybox.material.alpha -= 0.01 //天空盒透明度递减
+            skybox.material.alpha -= 0.018 //天空盒透明度递减
           }
         }, speed)
       } else {
         timer = setInterval(() => {
           if (light.intensity >= 1) {
             clearInterval(timer)
+            babylon.scene.freezeActiveMeshes()
           } else {
             light.intensity += 0.01 //灯光明暗递增
-            skybox.material.alpha += 0.01 //天空盒透明度递增
+            skybox.material.alpha += 0.018 //天空盒透明度递增
           }
         }, speed)
       }
@@ -484,7 +495,8 @@ export default defineComponent({
       //   babylon.camera
       // )
       babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0) //相机旋转
-      babylon.scene.clearColor = new BABYLON.Color3(0, 0.07, 0.18) //场景颜色
+      babylon.scene.clearColor = new BABYLON.Color3(0, 0.04, 0.12) //场景颜色
+
       let background = BABYLON.MeshBuilder.CreateGround(
         //创景地板
         'myGround',
@@ -502,9 +514,9 @@ export default defineComponent({
         babylon.scene
       )
 
-      light.diffuse = new BABYLON.Color3(1, 0.98, 0.58)
+      light.diffuse = new BABYLON.Color3(1, 1, 1)
       light.groundColor = new BABYLON.Color3(1, 0.98, 0.58)
-      light.intensity = 1 //光照强度
+      light.intensity = 0.8 //光照强度
       light.specular = BABYLON.Color3.Black() //镜面反射颜色
       skybox = BABYLON.Mesh.CreateBox(
         //创建天空盒
@@ -525,7 +537,6 @@ export default defineComponent({
       boxMaterial.reflectionTexture.coordinatesMode =
         BABYLON.Texture.SKYBOX_MODE
       skybox.material = boxMaterial
-      light.diffuse = new BABYLON.Color3(0.98, 0.98, 0.98)
       let backgroundMaterial = new BABYLON.StandardMaterial(
         'myMaterial',
         babylon.scene
@@ -597,7 +608,6 @@ export default defineComponent({
           babylon.scene.pointerX,
           babylon.scene.pointerY
         )
-        console.log(pickResult, 'asdadada6312321321')
       })
       babylon.engine.runRenderLoop(function () {
         //场景渲染
@@ -656,10 +666,94 @@ export default defineComponent({
         })
       }
     }
+    const rightChart = () => {
+      let data1: number[] = []
+      let data2: number[] = []
+      for (let i = 0; i < 9; i++) {
+        data1.push(Number((Math.random() * 1000).toFixed(0)))
+        data2.push(Number((Math.random() * 1000).toFixed(0)))
+      }
+      let chartDom = document.getElementById('right-chart')!
+      let myChart = echarts.init(chartDom)
+      let yData = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9']
+      myChart.setOption({
+        tooltip: {
+          trigger: 'axis'
+        },
+        color: ['rgba(200,200,200,0.6)', 'rgba(24, 254, 254, 1)'],
+        grid: {
+          top: '0%',
+          left: '1%',
+          right: '0%',
+          bottom: '0%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'value',
+          boundaryGap: [0, 0.01],
+          show: false
+        },
+        yAxis: {
+          type: 'category',
+          data: yData.reverse(),
+          splitLine: {
+            //网格线样式
+            lineStyle: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            show: true
+          },
+          axisLabel: {
+            textStyle: {
+              fontSize: '14px',
+              color: '#fff'
+            }
+          }
+        },
+        series: [
+          {
+            name: '出',
+            type: 'bar',
+            data: data1,
+            label: {
+              show: true,
+              position: 'left',
+              valueAnimation: true,
+              textStyle: {
+                color: 'rgba(255,255,255,0.8)',
+                fontSize: '12px'
+              }
+            }
+          },
+          {
+            name: '入',
+            type: 'bar',
+            data: data2,
+            label: {
+              show: true,
+              position: 'left',
+              valueAnimation: true,
+              textStyle: {
+                color: 'rgba(150,150,150,1)',
+                fontSize: '12px'
+              }
+            }
+          }
+        ],
+        animationDuration: 0,
+        animationDurationUpdate: 5000,
+        animationEasing: 'linear',
+        animationEasingUpdate: 'linear'
+      })
+    }
     onMounted(() => {
       initBabylon()
       createScene()
       createChart()
+      rightChart()
+      setInterval(() => {
+        rightChart()
+      }, 5000)
     })
     return {
       babylon,
@@ -696,13 +790,13 @@ export default defineComponent({
   height: 100%;
   z-index: 10;
   background-color: rgba(0, 20, 29, 0.2);
-  // background: linear-gradient(90deg,rgba(0, 20, 29, 0.2) 40%,rgba(0, 20, 29, 0) 100%);
-  backdrop-filter: saturate(100%) blur(5px);
+  backdrop-filter: saturate(100%) blur(8px);
   padding: 10px;
   padding-top: 120px;
 }
 .right {
   width: 260px;
+  padding-top: 110px;
 }
 .bottom {
   z-index: 10;
@@ -800,8 +894,30 @@ export default defineComponent({
   }
 }
 .right-card {
-  display: flex;
   width: 100%;
+  height: 70%;
+  hgroup {
+    // margin: 16px;
+    // margin-top: 0;
+    margin-bottom: 20px;
+    h2 {
+      text-align: left;
+      color: #fff;
+      font-weight: bold;
+      margin: 0;
+    }
+    div {
+      display: flex;
+      span {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+        &:nth-child(1) {
+          margin-right: 8px;
+          color: #18fefe;
+        }
+      }
+    }
+  }
 }
 .mychart {
   width: 100%;
