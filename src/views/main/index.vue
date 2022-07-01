@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-07-01 16:29:38
+ * @LastEditTime: 2022-07-01 16:42:48
 -->
 <template>
   <div class="container">
@@ -751,7 +751,7 @@ export default defineComponent({
         tooltip: {
           trigger: 'axis'
         },
-        color: ['rgba(200,200,200,0.6)', 'rgba(24, 254, 254, 1)'],
+        color: ['rgba(200,200,200,0.6)', 'rgba(24, 254, 254, 0.8)'],
         grid: {
           top: '0%',
           left: '1%',
@@ -1012,7 +1012,8 @@ export default defineComponent({
 .alarm-shadow {
   transition: all 0.8s;
   // box-shadow: 0 0 100px 0px rgb(128, 37, 33, 1) inset;
-  background-color: rgb(128, 37, 33, 1);
+  background-color: rgba(196, 10, 0, 0.6);
+  box-shadow: 0 0 20px 3px rgba(196, 10, 0, 1);
 }
 .alarm-unshadow {
   transition: all 0.8s;
