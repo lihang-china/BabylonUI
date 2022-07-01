@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-30 16:07:31
+ * @LastEditTime: 2022-07-01 16:29:38
 -->
 <template>
   <div class="container">
@@ -39,17 +39,19 @@
         </div>
       </my-card>
       <my-card :title="'告警监控'" class="card-meshinfo">
-        <a-table
-          :customRow="customRow"
-          :pagination="false"
-          size="small"
-          :columns="state.columns"
-          :data-source="state.data"
-          :scroll="{
-            y: state.tableHeight
-          }"
-        >
-        </a-table>
+        <div :class="state.shadow ? 'alarm-shadow' : 'alarm-unshadow'">
+          <a-table
+            :customRow="customRow"
+            :pagination="false"
+            size="small"
+            :columns="state.columns"
+            :data-source="state.data"
+            :scroll="{
+              y: state.tableHeight
+            }"
+          >
+          </a-table>
+        </div>
       </my-card>
     </div>
     <button class="fixed-btn" @click="meshReset()"><reload-outlined /></button>
@@ -73,7 +75,7 @@
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import loading from './components/loading.vue'
 import myCard from './components/mainCard.vue'
-import { defineComponent, nextTick, onMounted, reactive, watch } from 'vue'
+import { defineComponent, onMounted, reactive, watch } from 'vue'
 import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders'
 import * as echarts from 'echarts'
@@ -91,13 +93,11 @@ export default defineComponent({
         meshChange(val)
       }
     )
-
     let hl: any, //模型高亮
       myMesh: any, //模型信息
       timer: number, //定时器
       skybox: any, //天空图
       light: any //半球光
-
     const btnList = [
         //按钮列表
         {
@@ -114,6 +114,7 @@ export default defineComponent({
       ],
       state = reactive({
         //获取自适应
+        shadow: false,
         chartHeight: document.documentElement.clientHeight * 0.2, //图标窗口比例高度
         tableHeight: document.documentElement.clientHeight * 0.25, //ant-table窗口比例高度
         meshState: 1, //模型昼夜状态 1：昼 2：夜
@@ -135,14 +136,15 @@ export default defineComponent({
         },
         columns: [
           //ant-table列
-          { title: '监控名称', key: 'name', dataIndex: 'name' },
+          { title: '报警名称', key: 'name', dataIndex: 'name' },
           { title: '区域', key: 'area', dataIndex: 'area' },
           {
             title: '时间',
             key: 'time',
             dataIndex: 'time',
             ellipsis: true,
-            align: 'center'
+            align: 'center',
+            width: 150
           }
           // {
           //   title: "操作",
@@ -152,14 +154,14 @@ export default defineComponent({
           // },
         ],
         data: [
-          { name: 'Row-1', area: '西路口', time: '2022-06-06 10:22:01' },
-          { name: 'Tcar-1', area: '停车场', time: '2022-06-06 10:22:01' },
-          { name: 'Row-2', area: '东路口', time: '2022-06-06 10:22:01' },
-          { name: 'Tik-1', area: '餐厅', time: '2022-06-06 10:22:01' },
-          { name: 'Tcic-2', area: '商店', time: '2022-06-06 10:22:01' },
-          { name: 'Row-2', area: '东路口', time: '2022-06-06 10:22:01' },
-          { name: 'Tik-1', area: '餐厅', time: '2022-06-06 10:22:01' },
-          { name: 'Tcic-2', area: '商店', time: '2022-06-06 10:22:01' }
+          { name: '爆炸报警', area: '西路口', time: '06-06 10:22:01' },
+          { name: '烟雾报警', area: '停车场', time: '06-06 10:22:01' },
+          { name: '火灾报警', area: '东路口', time: '06-06 10:22:01' },
+          { name: '烟雾报警', area: '餐厅', time: '06-06 10:22:01' },
+          { name: '烟雾报警', area: '商店', time: '06-06 10:22:01' },
+          { name: '烟雾报警', area: '东路口', time: '06-06 10:22:01' },
+          { name: '火灾报警', area: '餐厅', time: '06-06 10:22:01' },
+          { name: '火灾报警', area: '商店', time: '06-06 10:22:01' }
         ]
       }),
       babylon: any = {
@@ -169,6 +171,12 @@ export default defineComponent({
         scene: undefined, //场景
         camera: undefined //相机
       }
+    const alarmShadow = () => {
+      setInterval(() => {
+        state.shadow = !state.shadow
+      }, 800)
+    }
+    //重置模型
     const meshReset = () => {
       //重置模型纹理
       babylon.scene.unfreezeActiveMeshes()
@@ -194,6 +202,7 @@ export default defineComponent({
       light.diffuse = new BABYLON.Color3(1, 1, 1) //重置半球光散射
       babylon.scene.freezeActiveMeshes() //冻结活动网格
     }
+    //昼夜切换
     const meshChange = (val: number) => {
       // 天空动态切换
       babylon.scene.unfreezeActiveMeshes()
@@ -203,25 +212,36 @@ export default defineComponent({
         timer = setInterval(() => {
           if (light.intensity <= 0.2) {
             clearInterval(timer)
-            light.diffuse = new BABYLON.Color3(0.1, 0.1, 0.1)
             babylon.scene.freezeActiveMeshes()
           } else {
             light.intensity -= 0.01 //灯光明暗递减
             skybox.material.alpha -= 0.018 //天空盒透明度递减
+            light.diffuse = new BABYLON.Color3(
+              light.intensity,
+              light.intensity,
+              light.intensity
+            )
           }
         }, speed)
       } else {
         timer = setInterval(() => {
           if (light.intensity >= 1) {
             clearInterval(timer)
+            light.diffuse = new BABYLON.Color3(1, 1, 1)
             babylon.scene.freezeActiveMeshes()
           } else {
             light.intensity += 0.01 //灯光明暗递增
             skybox.material.alpha += 0.018 //天空盒透明度递增
+            light.diffuse = new BABYLON.Color3(
+              light.intensity,
+              light.intensity,
+              light.intensity
+            )
           }
         }, speed)
       }
     }
+    //分析表格按钮切换
     const btnChange = async (row: {
       value: string
       pos: { x: number; y: number; z: number }
@@ -240,6 +260,7 @@ export default defineComponent({
         .waitAsync() //异步加载动画
       meshTx()
     }
+    //数据分析特效
     const meshTx = () => {
       //描边特效
       myMesh.forEach((e: any, index: number) => {
@@ -257,6 +278,7 @@ export default defineComponent({
       })
       light.intensity = 0.1
     }
+    //数据分析模型和动画
     const meshAnimo = (pos: { x: number; y: number; z: number }) => {
       //相机位置和旋转动画，不需要判断是否已存在模型，用于位置初始化
       let posKey = [
@@ -427,6 +449,7 @@ export default defineComponent({
       babylon.scene.blockMaterialDirtyMechanism = false
       babylon.scene.blockfreeActiveMeshesAndRenderingGroups = false
     }
+    //告警监控点击行事件
     const customRow = (record: any, index: number) => {
       //点击ant-table-row时间
       return {
@@ -453,6 +476,15 @@ export default defineComponent({
               1,
               babylon.scene
             )
+            BABYLON.ParticleHelper.CreateAsync('explosion', babylon.scene).then(
+              //爆炸粒子
+              (set) => {
+                set.start()
+                set.systems.forEach((e) => {
+                  e.emitter = new BABYLON.Vector3(-5, 2, 70)
+                })
+              }
+            )
             cylinder.position = new BABYLON.Vector3(10, -3, 85)
             cylinder.rotation.z = -0.5
             cylinder.material = myMaterial
@@ -473,6 +505,7 @@ export default defineComponent({
         }
       }
     }
+    //创建babylonjs引擎
     const initBabylon = () => {
       babylon.canvas = document.getElementById('mycanvas') //获取babylon画布
       babylon.engine = new BABYLON.Engine(babylon.canvas, true, {
@@ -480,6 +513,7 @@ export default defineComponent({
         stencil: true
       })
     }
+    //创建场景和导入gltf模型
     const createScene = () => {
       babylon.scene = new BABYLON.Scene(babylon.engine) //创建babylon场景
       babylon.camera = new BABYLON.UniversalCamera( // 创建babylon相机
@@ -497,13 +531,14 @@ export default defineComponent({
       babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0) //相机旋转
       babylon.scene.clearColor = new BABYLON.Color3(0, 0.04, 0.12) //场景颜色
 
-      let background = BABYLON.MeshBuilder.CreateGround(
-        //创景地板
-        'myGround',
-        { width: 10000, height: 10000, subdivisions: 10 },
-        babylon.scene
+      let background = BABYLON.MeshBuilder.CreateGroundFromHeightMap(
+        'gdhm',
+        'textures/heightMap.png',
+        { width: 10000, height: 10000, subdivisions: 100, maxHeight: 1000 }
       )
-      background.position.y = -0.5 //地板轻微下沉，防止与模型重合
+      background.position.y = -51.5 //地板轻微下沉，防止与模型重合
+      background.position.x = -700
+      background.position.z = 1400
       // var me = new BABYLON.StandardMaterial('myMaterial', babylon.scene)
       // me.emissiveColor = new BABYLON.Color3(1, 1, 1)
       // me.wireframe = true
@@ -513,7 +548,6 @@ export default defineComponent({
         new BABYLON.Vector3(0, 1, 0),
         babylon.scene
       )
-
       light.diffuse = new BABYLON.Color3(1, 1, 1)
       light.groundColor = new BABYLON.Color3(1, 0.98, 0.58)
       light.intensity = 0.8 //光照强度
@@ -537,17 +571,30 @@ export default defineComponent({
       boxMaterial.reflectionTexture.coordinatesMode =
         BABYLON.Texture.SKYBOX_MODE
       skybox.material = boxMaterial
+      // let backgroundMaterial = new BABYLON.StandardMaterial(
+      //   'myMaterial',
+      //   babylon.scene
+      // ) //创建地板材质
       let backgroundMaterial = new BABYLON.StandardMaterial(
         'myMaterial',
         babylon.scene
       ) //创建地板材质
       let Textur = new BABYLON.Texture('textures/ground.png', babylon.scene) //地板草地贴图
       //贴图缩放
-      Textur.uScale = 100
-      Textur.vScale = 100
+      Textur.uScale = 20
+      Textur.vScale = 20
       backgroundMaterial.diffuseTexture = Textur
       background.material = backgroundMaterial
 
+      BABYLON.ParticleHelper.CreateAsync('rain', babylon.scene).then((set) => {
+        set.systems[0].updateSpeed = 0.1
+        set.start()
+        babylon.scene.registerBeforeRender(() => {
+          set.systems.forEach((e) => {
+            e.emitter = babylon.camera.position
+          })
+        })
+      })
       //碰撞检测
       babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1)
       babylon.scene.collisionsEnabled = true
@@ -563,6 +610,8 @@ export default defineComponent({
         '3d66.gltf',
         babylon.scene,
         (mesh) => {
+          console.log(mesh, 'asdadad')
+
           mesh.forEach((e) => {
             // e.setEnabled(false)
             e.freezeWorldMatrix() //减少世界矩阵计算
@@ -592,10 +641,30 @@ export default defineComponent({
             frame: 100,
             value: new BABYLON.Vector3(-300, 350, 0)
           })
+
           animationBox.setKeys(keys)
           babylon.camera.animations = []
           babylon.camera.animations.push(animationBox)
           babylon.scene.beginAnimation(babylon.camera, 0, 100, false, 0.4)
+          //报警特效
+          BABYLON.ParticleHelper.CreateAsync('smoke', babylon.scene).then(
+            //烟雾粒子
+            (set) => {
+              set.start()
+              set.systems.forEach((e) => {
+                e.emitter = new BABYLON.Vector3(-5, 2, 70)
+              })
+            }
+          )
+          BABYLON.ParticleHelper.CreateAsync('fire', babylon.scene).then(
+            //火焰粒子
+            (set) => {
+              set.start()
+              set.systems.forEach((e) => {
+                e.emitter = new BABYLON.Vector3(-5, 2, 70)
+              })
+            }
+          )
         },
         (load) => {
           //模型加载进度
@@ -614,6 +683,7 @@ export default defineComponent({
         babylon.scene.render()
       })
     }
+    //创建左侧echarts图表
     const createChart = () => {
       //创建echarts
       let chartDom = document.querySelector('#myChart')
@@ -666,6 +736,7 @@ export default defineComponent({
         })
       }
     }
+    //创建右侧echarts图表
     const rightChart = () => {
       let data1: number[] = []
       let data2: number[] = []
@@ -747,12 +818,13 @@ export default defineComponent({
       })
     }
     onMounted(() => {
+      alarmShadow()
       initBabylon()
       createScene()
       createChart()
       rightChart()
       setInterval(() => {
-        rightChart()
+        rightChart() //刷新echarts数据
       }, 5000)
     })
     return {
@@ -936,5 +1008,15 @@ export default defineComponent({
   &:hover {
     cursor: pointer;
   }
+}
+.alarm-shadow {
+  transition: all 0.8s;
+  // box-shadow: 0 0 100px 0px rgb(128, 37, 33, 1) inset;
+  background-color: rgb(128, 37, 33, 1);
+}
+.alarm-unshadow {
+  transition: all 0.8s;
+  // box-shadow: 0 0 40px 0px rgb(128, 37, 33, 0.8) inset;
+  background-color: rgb(128, 37, 33, 0);
 }
 </style>
