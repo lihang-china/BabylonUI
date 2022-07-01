@@ -8,6 +8,9 @@
 -->
 <template>
   <div class="container">
+    <transition name="fade">
+      <loading v-if="state.show" :loading="state.loading" />
+    </transition>
     <canvas id="mycanvas" style="width: 100%; height: 100%"></canvas>
     <div class="left">
       <my-card :title="'模型信息'" class="card-meshinfo">
@@ -47,7 +50,7 @@
             :columns="state.columns"
             :data-source="state.data"
             :scroll="{
-              y: state.tableHeight
+              y: state.tableHeight,
             }"
           >
           </a-table>
@@ -60,92 +63,118 @@
       <div class="right-card">
         <hgroup>
           <h2>人员流动分析</h2>
-          <div><span>[出入]</span><span>流量数据</span></div>
+          <div><span>[Day]</span><span>检查口人流实时数据</span></div>
         </hgroup>
-        <div id="right-chart" style="height: 100%; width: 100%"></div>
+        <div id="right-chart" class="right-chart"></div>
+      </div>
+      <div class="right-card">
+        <hgroup>
+          <h2>天气条件</h2>
+          <div><span>[Day]</span><span>监听当前天气状况</span></div>
+        </hgroup>
+        <div class="right-weather">
+          <div class="humidity-cirle">
+            <span>{{ state.weatherData.humidity }}%</span>
+            <span>湿度</span>
+          </div>
+          <div class="weather-bottom">
+            <div class="flex-column">
+              <span>风向</span>
+              <span>{{ state.weatherData.windDirection }}</span>
+            </div>
+            <div class="flex-column">
+              <span>风力</span>
+              <span>{{ state.weatherData.windPower }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <transition name="fade">
-      <loading v-if="!state.show" :loading="state.loading" />
-    </transition>
   </div>
 </template>
-
 <script lang="ts">
-import { ReloadOutlined } from '@ant-design/icons-vue'
-import loading from './components/loading.vue'
-import myCard from './components/mainCard.vue'
-import { defineComponent, onMounted, reactive, watch } from 'vue'
-import * as BABYLON from 'babylonjs'
-import 'babylonjs-loaders'
-import * as echarts from 'echarts'
-import store from '@/store'
+import { ReloadOutlined } from "@ant-design/icons-vue";
+import loading from "./components/loading.vue";
+import myCard from "./components/mainCard.vue";
+import { defineComponent, onMounted, reactive, watch } from "vue";
+import * as BABYLON from "babylonjs";
+import "babylonjs-loaders";
+import * as echarts from "echarts";
+import store from "@/store";
 export default defineComponent({
   components: {
     myCard,
     loading,
-    ReloadOutlined
+    ReloadOutlined,
   },
   setup() {
     watch(
-      () => store.state.meshState,
+      () => [store.state.meshState],
       (val) => {
-        meshChange(val)
+        meshChange(Number(val[0]));
       }
-    )
+    );
+    //单独监听天气变化
+    watch(
+      () => [store.state.weatherData],
+      (val) => {
+        state.weatherData = val[0];
+      }
+    );
     let hl: any, //模型高亮
       myMesh: any, //模型信息
       timer: number, //定时器
       skybox: any, //天空图
-      light: any //半球光
+      light: any; //半球光
     const btnList = [
         //按钮列表
         {
-          label: '人员流动分析',
-          value: '1',
-          pos: { x: -10.9, y: 200, z: 28.4 }
+          label: "人员流动分析",
+          value: "1",
+          pos: { x: -10.9, y: 200, z: 28.4 },
         },
-        { label: '流量报警', value: '2', pos: { x: -6.4, y: 200, z: -52 } },
+        { label: "流量报警", value: "2", pos: { x: -6.4, y: 200, z: -52 } },
         {
-          label: '入口流量分析',
-          value: '3',
-          pos: { x: 28.4, y: 200, z: -21.4 }
-        }
+          label: "入口流量分析",
+          value: "3",
+          pos: { x: 28.4, y: 200, z: -21.4 },
+        },
       ],
       state = reactive({
+        weatherData: {},
         //获取自适应
         shadow: false,
         chartHeight: document.documentElement.clientHeight * 0.2, //图标窗口比例高度
         tableHeight: document.documentElement.clientHeight * 0.25, //ant-table窗口比例高度
         meshState: 1, //模型昼夜状态 1：昼 2：夜
         chartList: [820, 932, 901, 934, 1290, 1330, 1320], //echart数据
-        radio: '1', //按钮默认值
-        show: false, //模型加载窗口显示
+        radio: "1", //按钮默认值
+        show: true, //模型加载窗口显示
         loading: 0, //模型加载百分比
         meshList: [
           //左侧头部信息
-          { label: '模型名称', value: 'name' },
-          { label: '模型信息', value: 'info' },
-          { label: '模型位置', value: 'path' }
+          { label: "模型名称", value: "name" },
+          { label: "模型信息", value: "info" },
+          { label: "模型位置", value: "path" },
         ],
         meshData: {
           //左侧头部信息
-          name: 'Mymesh',
-          info: '沿海机场模型',
-          path: 'XX省 XX市 116号'
+          name: "Mymesh",
+          info: "沿海机场模型",
+          path: "XX省 XX市 116号",
         },
         columns: [
           //ant-table列
-          { title: '报警名称', key: 'name', dataIndex: 'name' },
-          { title: '区域', key: 'area', dataIndex: 'area' },
+          { title: "报警名称", key: "name", dataIndex: "name" },
+          { title: "区域", key: "area", dataIndex: "area" },
           {
-            title: '时间',
-            key: 'time',
-            dataIndex: 'time',
+            title: "时间",
+            key: "time",
+            dataIndex: "time",
             ellipsis: true,
-            align: 'center',
-            width: 150
-          }
+            align: "center",
+            width: 150,
+          },
           // {
           //   title: "操作",
           //   key: "handle",
@@ -154,130 +183,130 @@ export default defineComponent({
           // },
         ],
         data: [
-          { name: '爆炸报警', area: '西路口', time: '06-06 10:22:01' },
-          { name: '烟雾报警', area: '停车场', time: '06-06 10:22:01' },
-          { name: '火灾报警', area: '东路口', time: '06-06 10:22:01' },
-          { name: '烟雾报警', area: '餐厅', time: '06-06 10:22:01' },
-          { name: '烟雾报警', area: '商店', time: '06-06 10:22:01' },
-          { name: '烟雾报警', area: '东路口', time: '06-06 10:22:01' },
-          { name: '火灾报警', area: '餐厅', time: '06-06 10:22:01' },
-          { name: '火灾报警', area: '商店', time: '06-06 10:22:01' }
-        ]
+          { name: "爆炸报警", area: "西路口", time: "06-06 10:22:01" },
+          { name: "烟雾报警", area: "停车场", time: "06-06 10:22:01" },
+          { name: "火灾报警", area: "东路口", time: "06-06 10:22:01" },
+          { name: "烟雾报警", area: "餐厅", time: "06-06 10:22:01" },
+          { name: "烟雾报警", area: "商店", time: "06-06 10:22:01" },
+          { name: "烟雾报警", area: "东路口", time: "06-06 10:22:01" },
+          { name: "火灾报警", area: "餐厅", time: "06-06 10:22:01" },
+          { name: "火灾报警", area: "商店", time: "06-06 10:22:01" },
+        ],
       }),
       babylon: any = {
         //babylonJs 基本信息
         canvas: undefined, //画布
         engine: undefined, //引擎
         scene: undefined, //场景
-        camera: undefined //相机
-      }
+        camera: undefined, //相机
+      };
     const alarmShadow = () => {
       setInterval(() => {
-        state.shadow = !state.shadow
-      }, 800)
-    }
+        state.shadow = !state.shadow;
+      }, 800);
+    };
     //重置模型
     const meshReset = () => {
       //重置模型纹理
-      babylon.scene.unfreezeActiveMeshes()
-      light.intensity = 1 //半球光亮度
-      if (babylon.scene.getMeshById('cylinder')) {
+      babylon.scene.unfreezeActiveMeshes();
+      light.intensity = 1; //半球光亮度
+      if (babylon.scene.getMeshById("cylinder")) {
         //判断摄像头特效是否存在
-        babylon.scene.getMeshById('cylinder').dispose() //处理模型
+        babylon.scene.getMeshById("cylinder").dispose(); //处理模型
       }
-      if (babylon.scene.getMaterialByName('mat')) {
+      if (babylon.scene.getMaterialByName("mat")) {
         //判断发光材质是否存在
-        babylon.scene.getMaterialByName('mat').dispose() //处理材质
-        babylon.scene.getMeshById('pathCy').dispose() //处理模型
-        babylon.scene.getMeshById('torus').dispose() //处理模型
+        babylon.scene.getMaterialByName("mat").dispose(); //处理材质
+        babylon.scene.getMeshById("pathCy").dispose(); //处理模型
+        babylon.scene.getMeshById("torus").dispose(); //处理模型
       }
       myMesh.forEach(
         (e: { disableEdgesRendering: () => void }, index: number) => {
-          e.disableEdgesRendering() //关闭边缘发光
+          e.disableEdgesRendering(); //关闭边缘发光
           if (index !== 0) {
-            hl.removeMesh(e) //关闭模型描边
+            hl.removeMesh(e); //关闭模型描边
           }
         }
-      )
-      light.diffuse = new BABYLON.Color3(1, 1, 1) //重置半球光散射
-      babylon.scene.freezeActiveMeshes() //冻结活动网格
-    }
+      );
+      light.diffuse = new BABYLON.Color3(1, 1, 1); //重置半球光散射
+      babylon.scene.freezeActiveMeshes(); //冻结活动网格
+    };
     //昼夜切换
     const meshChange = (val: number) => {
       // 天空动态切换
-      babylon.scene.unfreezeActiveMeshes()
-      timer ? clearInterval(timer) : '' //判断计时器是否存在
-      let speed = 10 // 昼夜切换速度
+      babylon.scene.unfreezeActiveMeshes();
+      timer ? clearInterval(timer) : ""; //判断计时器是否存在
+      let speed = 10; // 昼夜切换速度
       if (val === 1) {
         timer = setInterval(() => {
           if (light.intensity <= 0.2) {
-            clearInterval(timer)
-            babylon.scene.freezeActiveMeshes()
+            clearInterval(timer);
+            babylon.scene.freezeActiveMeshes();
           } else {
-            light.intensity -= 0.01 //灯光明暗递减
-            skybox.material.alpha -= 0.018 //天空盒透明度递减
+            light.intensity -= 0.01; //灯光明暗递减
+            skybox.material.alpha -= 0.018; //天空盒透明度递减
             light.diffuse = new BABYLON.Color3(
               light.intensity,
               light.intensity,
               light.intensity
-            )
+            );
           }
-        }, speed)
+        }, speed);
       } else {
         timer = setInterval(() => {
           if (light.intensity >= 1) {
-            clearInterval(timer)
-            light.diffuse = new BABYLON.Color3(1, 1, 1)
-            babylon.scene.freezeActiveMeshes()
+            clearInterval(timer);
+            light.diffuse = new BABYLON.Color3(1, 1, 1);
+            babylon.scene.freezeActiveMeshes();
           } else {
-            light.intensity += 0.01 //灯光明暗递增
-            skybox.material.alpha += 0.018 //天空盒透明度递增
+            light.intensity += 0.01; //灯光明暗递增
+            skybox.material.alpha += 0.018; //天空盒透明度递增
             light.diffuse = new BABYLON.Color3(
               light.intensity,
               light.intensity,
               light.intensity
-            )
+            );
           }
-        }, speed)
+        }, speed);
       }
-    }
+    };
     //分析表格按钮切换
     const btnChange = async (row: {
-      value: string
-      pos: { x: number; y: number; z: number }
+      value: string;
+      pos: { x: number; y: number; z: number };
     }) => {
-      state.radio = row.value //切换绑定按钮
+      state.radio = row.value; //切换绑定按钮
       state.chartList.sort(() => {
-        return Math.random() > 0.5 ? -1 : 1 //echarts数据随机排序
-      })
-      createChart()
-      babylon.scene.blockfreeActiveMeshesAndRenderingGroups = true
-      babylon.scene.blockMaterialDirtyMechanism = true
-      babylon.scene.unfreezeActiveMeshes() //解冻活动网格
-      meshAnimo(row.pos)
+        return Math.random() > 0.5 ? -1 : 1; //echarts数据随机排序
+      });
+      createChart();
+      babylon.scene.blockfreeActiveMeshesAndRenderingGroups = true;
+      babylon.scene.blockMaterialDirtyMechanism = true;
+      babylon.scene.unfreezeActiveMeshes(); //解冻活动网格
+      meshAnimo(row.pos);
       await babylon.scene
         .beginAnimation(babylon.camera, 0, 100, false, 0.8)
-        .waitAsync() //异步加载动画
-      meshTx()
-    }
+        .waitAsync(); //异步加载动画
+      meshTx();
+    };
     //数据分析特效
     const meshTx = () => {
       //描边特效
       myMesh.forEach((e: any, index: number) => {
         if (index < 1000) {
-          e.enableEdgesRendering(0.001)
-          e.edgesWidth = 50
-          e.edgesColor = new BABYLON.Color4(0, 1, 1, 1)
+          e.enableEdgesRendering(0.001);
+          e.edgesWidth = 50;
+          e.edgesColor = new BABYLON.Color4(0, 1, 1, 1);
         }
         if (index !== 0) {
           hl.addMesh(
             e.subMeshes[0].getRenderingMesh(),
             new BABYLON.Color3(0, 1, 1)
-          )
+          );
         }
-      })
-      light.intensity = 0.1
-    }
+      });
+      light.intensity = 0.1;
+    };
     //数据分析模型和动画
     const meshAnimo = (pos: { x: number; y: number; z: number }) => {
       //相机位置和旋转动画，不需要判断是否已存在模型，用于位置初始化
@@ -288,13 +317,13 @@ export default defineComponent({
             babylon.camera.position.x,
             babylon.camera.position.y,
             babylon.camera.position.z
-          )
+          ),
         },
         {
           frame: 100,
-          value: new BABYLON.Vector3(pos.x - 200, pos.y, pos.z)
-        }
-      ]
+          value: new BABYLON.Vector3(pos.x - 200, pos.y, pos.z),
+        },
+      ];
       let ronKey = [
         {
           frame: 0,
@@ -302,225 +331,225 @@ export default defineComponent({
             babylon.camera.rotation.x,
             babylon.camera.rotation.y,
             babylon.camera.rotation.z
-          )
+          ),
         },
         {
           frame: 100,
-          value: new BABYLON.Vector3(0.8, 1.6, 0)
-        }
-      ]
+          value: new BABYLON.Vector3(0.8, 1.6, 0),
+        },
+      ];
       let keys = [
         {
           frame: 0,
-          value: new BABYLON.Vector3(0, 0.1, 0)
+          value: new BABYLON.Vector3(0, 0.1, 0),
         },
         {
           frame: 100,
-          value: new BABYLON.Vector3(10, 0.1, 10)
-        }
-      ]
+          value: new BABYLON.Vector3(10, 0.1, 10),
+        },
+      ];
       let key = [
         {
           frame: 0,
-          value: new BABYLON.Vector3(pos.x, 18, pos.z)
+          value: new BABYLON.Vector3(pos.x, 18, pos.z),
         },
         {
           frame: 50,
-          value: new BABYLON.Vector3(pos.x, 25, pos.z)
+          value: new BABYLON.Vector3(pos.x, 25, pos.z),
         },
         {
           frame: 100,
-          value: new BABYLON.Vector3(pos.x, 18, pos.z)
-        }
-      ]
-      if (!babylon.camera.getAnimationByName('aniPos')) {
+          value: new BABYLON.Vector3(pos.x, 18, pos.z),
+        },
+      ];
+      if (!babylon.camera.getAnimationByName("aniPos")) {
         let aniPos = new BABYLON.Animation(
-          'aniPos',
-          'position',
+          "aniPos",
+          "position",
           100,
           BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
           BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-        ) //镜头位置动画
+        ); //镜头位置动画
         let aniRon = new BABYLON.Animation(
-          'aniRon',
-          'rotation',
+          "aniRon",
+          "rotation",
           100,
           BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
           BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-        ) //镜头旋转动画
+        ); //镜头旋转动画
 
-        aniRon.setKeys(ronKey)
-        aniPos.setKeys(posKey)
-        babylon.camera.animations.push(aniRon)
-        babylon.camera.animations.push(aniPos)
+        aniRon.setKeys(ronKey);
+        aniPos.setKeys(posKey);
+        babylon.camera.animations.push(aniRon);
+        babylon.camera.animations.push(aniPos);
       } else {
-        babylon.camera.getAnimationByName('aniPos').setKeys(posKey),
-          babylon.camera.getAnimationByName('aniRon').setKeys(ronKey)
+        babylon.camera.getAnimationByName("aniPos").setKeys(posKey),
+          babylon.camera.getAnimationByName("aniRon").setKeys(ronKey);
       }
-      if (!babylon.scene.getMaterialByName('mat')) {
+      if (!babylon.scene.getMaterialByName("mat")) {
         //判断圆环模型是否存在，不存在则执行创建模型和动画
         let cy = BABYLON.Mesh.CreateCylinder(
           //圆锥
-          'pathCy',
+          "pathCy",
           20,
           10,
           0.1,
           100,
           1,
           babylon.scene
-        )
-        let mat = new BABYLON.StandardMaterial('mat', babylon.scene) //发光材质
-        mat.emissiveColor = new BABYLON.Color3(0, 1, 1)
-        let gl = new BABYLON.GlowLayer('glow', babylon.scene, {
+        );
+        let mat = new BABYLON.StandardMaterial("mat", babylon.scene); //发光材质
+        mat.emissiveColor = new BABYLON.Color3(0, 1, 1);
+        let gl = new BABYLON.GlowLayer("glow", babylon.scene, {
           //材质发光
-          mainTextureSamples: 6
-        })
+          mainTextureSamples: 6,
+        });
         let mySphere = BABYLON.Mesh.CreateTorus(
-          'torus',
+          "torus",
           150,
           3,
           150,
           babylon.scene
-        )
-        light.intensity = 0.01
-        light.diffuse = new BABYLON.Color3(0, 1, 1)
-        cy.material = mat
-        mySphere.material = mat
-        gl.addIncludedOnlyMesh(mySphere)
+        );
+        light.intensity = 0.01;
+        light.diffuse = new BABYLON.Color3(0, 1, 1);
+        cy.material = mat;
+        mySphere.material = mat;
+        gl.addIncludedOnlyMesh(mySphere);
         //圆环动画与浮动圆锥动画
         let animationBox = new BABYLON.Animation(
-          'animationBox',
-          'scaling',
+          "animationBox",
+          "scaling",
           100,
           BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
           BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
-        )
+        );
         let animationCy = new BABYLON.Animation(
-          'animationCy',
-          'position',
+          "animationCy",
+          "position",
           100,
           BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
           BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
-        )
-        animationBox.setKeys(keys)
-        animationCy.setKeys(key)
-        cy.animations = []
-        cy.animations.push(animationCy)
-        mySphere.animations = []
-        mySphere.animations.push(animationBox)
+        );
+        animationBox.setKeys(keys);
+        animationCy.setKeys(key);
+        cy.animations = [];
+        cy.animations.push(animationCy);
+        mySphere.animations = [];
+        mySphere.animations.push(animationBox);
       } else {
         //设置动画为最新值
         babylon.scene
-          .getMeshByName('torus')
-          .getAnimationByName('animationBox')
-          .setKeys(keys)
+          .getMeshByName("torus")
+          .getAnimationByName("animationBox")
+          .setKeys(keys);
         babylon.scene
-          .getMeshByName('pathCy')
-          .getAnimationByName('animationCy')
-          .setKeys(key)
+          .getMeshByName("pathCy")
+          .getAnimationByName("animationCy")
+          .setKeys(key);
       }
       //修改模型位置
-      babylon.scene.getMeshByName('torus').position = new BABYLON.Vector3(
+      babylon.scene.getMeshByName("torus").position = new BABYLON.Vector3(
         pos.x,
         -1,
         pos.z
-      )
-      babylon.scene.getMeshByName('pathCy').position = new BABYLON.Vector3(
+      );
+      babylon.scene.getMeshByName("pathCy").position = new BABYLON.Vector3(
         pos.x,
         18,
         pos.z
-      )
+      );
       //执行模型动画
       babylon.scene.beginAnimation(
-        babylon.scene.getMeshByName('torus'),
+        babylon.scene.getMeshByName("torus"),
         0,
         100,
         true,
         0.6
-      )
+      );
       babylon.scene.beginAnimation(
-        babylon.scene.getMeshByName('pathCy'),
+        babylon.scene.getMeshByName("pathCy"),
         0,
         100,
         true,
         0.8
-      )
+      );
       //开启模型动画
-      babylon.scene.blockMaterialDirtyMechanism = false
-      babylon.scene.blockfreeActiveMeshesAndRenderingGroups = false
-    }
+      babylon.scene.blockMaterialDirtyMechanism = false;
+      babylon.scene.blockfreeActiveMeshesAndRenderingGroups = false;
+    };
     //告警监控点击行事件
     const customRow = (record: any, index: number) => {
       //点击ant-table-row时间
       return {
         onClick: () => {
-          babylon.scene.unfreezeActiveMeshes() //解冻活动网格
-          babylon.camera.position = new BABYLON.Vector3(5, 30, 140) //改变相机位置
+          babylon.scene.unfreezeActiveMeshes(); //解冻活动网格
+          babylon.camera.position = new BABYLON.Vector3(5, 30, 140); //改变相机位置
           //控制相机旋转
-          babylon.camera.rotation.y = 3.1
-          babylon.camera.rotation.x = 0.6
-          if (!babylon.scene.getMeshById('cylinder')) {
+          babylon.camera.rotation.y = 3.1;
+          babylon.camera.rotation.x = 0.6;
+          if (!babylon.scene.getMeshById("cylinder")) {
             //判断摄像头扫描特效是否存在，防止重复加载模型
             let myMaterial = new BABYLON.StandardMaterial(
-              'myMaterial',
+              "myMaterial",
               babylon.scene
-            )
-            myMaterial.emissiveColor = new BABYLON.Color3(0, 0.29, 0.61)
-            myMaterial.diffuseColor = new BABYLON.Color3(0, 0.72, 1)
+            );
+            myMaterial.emissiveColor = new BABYLON.Color3(0, 0.29, 0.61);
+            myMaterial.diffuseColor = new BABYLON.Color3(0, 0.72, 1);
             let cylinder = BABYLON.Mesh.CreateCylinder(
-              'cylinder',
+              "cylinder",
               18,
               0.2,
               40,
               100,
               1,
               babylon.scene
-            )
-            BABYLON.ParticleHelper.CreateAsync('explosion', babylon.scene).then(
+            );
+            BABYLON.ParticleHelper.CreateAsync("explosion", babylon.scene).then(
               //爆炸粒子
               (set) => {
-                set.start()
+                set.start();
                 set.systems.forEach((e) => {
-                  e.emitter = new BABYLON.Vector3(-5, 2, 70)
-                })
+                  e.emitter = new BABYLON.Vector3(-5, 2, 70);
+                });
               }
-            )
-            cylinder.position = new BABYLON.Vector3(10, -3, 85)
-            cylinder.rotation.z = -0.5
-            cylinder.material = myMaterial
-            myMaterial.alpha = 0.3
-            myMaterial.wireframe = true //栅格纹理
-            let time = 0.2
+            );
+            cylinder.position = new BABYLON.Vector3(10, -3, 85);
+            cylinder.rotation.z = -0.5;
+            cylinder.material = myMaterial;
+            myMaterial.alpha = 0.3;
+            myMaterial.wireframe = true; //栅格纹理
+            let time = 0.2;
             cylinder.setPivotPoint(
               new BABYLON.Vector3(0, 10, 0),
               BABYLON.Space.LOCAL
-            )
+            );
             //渲染摄像头扫描动画
-            skybox.material.alpha = 0.7
+            skybox.material.alpha = 0.7;
             babylon.scene.registerBeforeRender(function () {
-              time += 0.01 * babylon.scene.getAnimationRatio()
-              cylinder.rotation.y = 0.8 * Math.sin(time)
-            })
+              time += 0.01 * babylon.scene.getAnimationRatio();
+              cylinder.rotation.y = 0.8 * Math.sin(time);
+            });
           }
-        }
-      }
-    }
+        },
+      };
+    };
     //创建babylonjs引擎
     const initBabylon = () => {
-      babylon.canvas = document.getElementById('mycanvas') //获取babylon画布
+      babylon.canvas = document.getElementById("mycanvas"); //获取babylon画布
       babylon.engine = new BABYLON.Engine(babylon.canvas, true, {
         //创建babylon 3d引擎
-        stencil: true
-      })
-    }
+        stencil: true,
+      });
+    };
     //创建场景和导入gltf模型
     const createScene = () => {
-      babylon.scene = new BABYLON.Scene(babylon.engine) //创建babylon场景
+      babylon.scene = new BABYLON.Scene(babylon.engine); //创建babylon场景
       babylon.camera = new BABYLON.UniversalCamera( // 创建babylon相机
-        'UniversalCamera',
+        "UniversalCamera",
         new BABYLON.Vector3(-2000, 1000, 0),
         babylon.scene
-      )
+      );
       //动态模糊效果
       // new BABYLON.MotionBlurPostProcess(
       //   'mb',
@@ -528,305 +557,309 @@ export default defineComponent({
       //   0.1,
       //   babylon.camera
       // )
-      babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0) //相机旋转
-      babylon.scene.clearColor = new BABYLON.Color3(0, 0.04, 0.12) //场景颜色
+      babylon.camera.rotation = new BABYLON.Vector3(0.8, 1.6, 0); //相机旋转
+      babylon.scene.clearColor = new BABYLON.Color3(0, 0.04, 0.12); //场景颜色
 
       let background = BABYLON.MeshBuilder.CreateGroundFromHeightMap(
-        'gdhm',
-        'textures/heightMap.png',
+        "gdhm",
+        "textures/heightMap.png",
         { width: 10000, height: 10000, subdivisions: 100, maxHeight: 1000 }
-      )
-      background.position.y = -51.5 //地板轻微下沉，防止与模型重合
-      background.position.x = -700
-      background.position.z = 1400
+      );
+      background.position.y = -51.5; //地板轻微下沉，防止与模型重合
+      background.position.x = -700;
+      background.position.z = 1400;
       // var me = new BABYLON.StandardMaterial('myMaterial', babylon.scene)
       // me.emissiveColor = new BABYLON.Color3(1, 1, 1)
       // me.wireframe = true
 
       light = new BABYLON.HemisphericLight( //创建半球光
-        'light1',
+        "light1",
         new BABYLON.Vector3(0, 1, 0),
         babylon.scene
-      )
-      light.diffuse = new BABYLON.Color3(1, 1, 1)
-      light.groundColor = new BABYLON.Color3(1, 0.98, 0.58)
-      light.intensity = 0.8 //光照强度
-      light.specular = BABYLON.Color3.Black() //镜面反射颜色
+      );
+      light.diffuse = new BABYLON.Color3(1, 1, 1);
+      light.groundColor = new BABYLON.Color3(1, 0.98, 0.58);
+      light.intensity = 0.8; //光照强度
+      light.specular = BABYLON.Color3.Black(); //镜面反射颜色
       skybox = BABYLON.Mesh.CreateBox(
         //创建天空盒
-        'BackgroundSkybox',
+        "BackgroundSkybox",
         10000,
         babylon.scene,
         undefined,
         BABYLON.Mesh.BACKSIDE
-      )
+      );
       let boxMaterial = new BABYLON.BackgroundMaterial( //创建天空盒材质
-        'backgroundMaterial',
+        "backgroundMaterial",
         babylon.scene
-      )
+      );
       boxMaterial.reflectionTexture = new BABYLON.CubeTexture( //天空盒贴图
-        'textures/TropicalSunnyDay',
+        "textures/TropicalSunnyDay",
         babylon.scene
-      )
+      );
       boxMaterial.reflectionTexture.coordinatesMode =
-        BABYLON.Texture.SKYBOX_MODE
-      skybox.material = boxMaterial
+        BABYLON.Texture.SKYBOX_MODE;
+      skybox.material = boxMaterial;
       // let backgroundMaterial = new BABYLON.StandardMaterial(
       //   'myMaterial',
       //   babylon.scene
       // ) //创建地板材质
       let backgroundMaterial = new BABYLON.StandardMaterial(
-        'myMaterial',
+        "myMaterial",
         babylon.scene
-      ) //创建地板材质
-      let Textur = new BABYLON.Texture('textures/ground.png', babylon.scene) //地板草地贴图
+      ); //创建地板材质
+      let Textur = new BABYLON.Texture("textures/ground.png", babylon.scene); //地板草地贴图
       //贴图缩放
-      Textur.uScale = 20
-      Textur.vScale = 20
-      backgroundMaterial.diffuseTexture = Textur
-      background.material = backgroundMaterial
+      Textur.uScale = 20;
+      Textur.vScale = 20;
+      backgroundMaterial.diffuseTexture = Textur;
+      background.material = backgroundMaterial;
 
-      BABYLON.ParticleHelper.CreateAsync('rain', babylon.scene).then((set) => {
-        set.systems[0].updateSpeed = 0.1
-        set.start()
+      BABYLON.ParticleHelper.CreateAsync("rain", babylon.scene).then((set) => {
+        set.systems[0].updateSpeed = 0.1;
+        set.start();
         babylon.scene.registerBeforeRender(() => {
           set.systems.forEach((e) => {
-            e.emitter = babylon.camera.position
-          })
-        })
-      })
+            e.emitter = babylon.camera.position;
+          });
+        });
+      });
       //碰撞检测
-      babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1)
-      babylon.scene.collisionsEnabled = true
-      babylon.camera.checkCollisions = true
-      background.checkCollisions = true
-      babylon.camera.attachControl(babylon.canvas, true)
-      babylon.scene.freezeActiveMeshes() //冻结活动网格
-      hl = new BABYLON.HighlightLayer('hl1', babylon.scene) //高亮描边
+      babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
+      babylon.scene.collisionsEnabled = true;
+      babylon.camera.checkCollisions = true;
+      background.checkCollisions = true;
+      babylon.camera.attachControl(babylon.canvas, true);
+      babylon.scene.freezeActiveMeshes(); //冻结活动网格
+      hl = new BABYLON.HighlightLayer("hl1", babylon.scene); //高亮描边
       BABYLON.SceneLoader.ImportMesh(
         //加载本地gltf模型
-        '',
-        './',
-        '3d66.gltf',
+        "",
+        "./",
+        "3d66.gltf",
         babylon.scene,
         (mesh) => {
-          console.log(mesh, 'asdadad')
-
           mesh.forEach((e) => {
             // e.setEnabled(false)
-            e.freezeWorldMatrix() //减少世界矩阵计算
+            e.freezeWorldMatrix(); //减少世界矩阵计算
             if (e.material) {
-              e.material.freeze() //冻结材质
+              e.material.freeze(); //冻结材质
             }
-          })
-          myMesh = mesh
-          state.show = true
+          });
+          myMesh = mesh;
+          state.show = false;
           let animationBox = new BABYLON.Animation(
-            'myAnimation',
-            'position',
+            "myAnimation",
+            "position",
             100,
             BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
             BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-          )
-          let keys = []
+          );
+          let keys = [];
           keys.push({
             frame: 0,
-            value: new BABYLON.Vector3(-2000, 1000, 0)
-          })
+            value: new BABYLON.Vector3(-2000, 1000, 0),
+          });
           keys.push({
             frame: 60,
-            value: new BABYLON.Vector3(-800, 800, 0)
-          })
+            value: new BABYLON.Vector3(-800, 800, 0),
+          });
           keys.push({
             frame: 100,
-            value: new BABYLON.Vector3(-300, 350, 0)
-          })
+            value: new BABYLON.Vector3(-300, 350, 0),
+          });
 
-          animationBox.setKeys(keys)
-          babylon.camera.animations = []
-          babylon.camera.animations.push(animationBox)
-          babylon.scene.beginAnimation(babylon.camera, 0, 100, false, 0.4)
+          animationBox.setKeys(keys);
+          babylon.camera.animations = [];
+          babylon.camera.animations.push(animationBox);
+          babylon.scene.beginAnimation(babylon.camera, 0, 100, false, 0.4);
           //报警特效
-          BABYLON.ParticleHelper.CreateAsync('smoke', babylon.scene).then(
+          BABYLON.ParticleHelper.CreateAsync("smoke", babylon.scene).then(
             //烟雾粒子
             (set) => {
-              set.start()
+              set.start();
               set.systems.forEach((e) => {
-                e.emitter = new BABYLON.Vector3(-5, 2, 70)
-              })
+                e.emitter = new BABYLON.Vector3(-5, 2, 70);
+              });
             }
-          )
-          BABYLON.ParticleHelper.CreateAsync('fire', babylon.scene).then(
+          );
+          BABYLON.ParticleHelper.CreateAsync("fire", babylon.scene).then(
             //火焰粒子
             (set) => {
-              set.start()
+              set.start();
               set.systems.forEach((e) => {
-                e.emitter = new BABYLON.Vector3(-5, 2, 70)
-              })
+                e.emitter = new BABYLON.Vector3(-5, 2, 70);
+              });
             }
-          )
+          );
         },
         (load) => {
           //模型加载进度
-          state.loading = Number(((load.loaded / load.total) * 100).toFixed(0))
+          state.loading = Number(((load.loaded / load.total) * 100).toFixed(0));
         }
-      )
-      window.addEventListener('click', function () {
+      );
+      window.addEventListener("click", function () {
         //监听鼠标点击事件
         let pickResult = babylon.scene.pick(
           babylon.scene.pointerX,
           babylon.scene.pointerY
-        )
-      })
+        );
+      });
       babylon.engine.runRenderLoop(function () {
         //场景渲染
-        babylon.scene.render()
-      })
-    }
+        babylon.scene.render();
+      });
+    };
     //创建左侧echarts图表
     const createChart = () => {
       //创建echarts
-      let chartDom = document.querySelector('#myChart')
+      let chartDom = document.querySelector("#myChart");
       if (chartDom !== null) {
-        let myChart = echarts.init(chartDom as HTMLDivElement)
+        let myChart = echarts.init(chartDom as HTMLDivElement);
         myChart.setOption({
           grid: {
             x: 30,
             y: 30,
             x2: 10,
-            y2: 10
+            y2: 18,
           },
           xAxis: {
-            type: 'category',
+            type: "category",
             boundaryGap: false,
-            show: false
+            show: true,
+            data:['6.1','6.2','6.3','6.4','6.5','6.6','6.7'],
+               axisLabel: {
+            textStyle:{
+              color:'rgba(255,255,255,0.7)'
+            }
+               }
           },
           yAxis: {
-            type: 'value',
+            type: "value",
             axisLabel: {
               textStyle: {
-                color: '#fff'
-              }
+                color: "#fff",
+              },
             },
             splitLine: {
               //网格线样式
               lineStyle: {
-                color: 'rgba(255, 255, 255, 0.1)'
+                color: "rgba(255, 255, 255, 0.1)",
               },
-              show: true
-            }
+              show: true,
+            },
           },
           series: [
             {
               data: state.chartList,
-              type: 'line',
+              type: "line",
               areaStyle: {
-                color: 'rgba(24, 212, 221, 0.3)'
+                color: "rgba(24, 212, 221, 0.3)",
               },
               itemStyle: {
                 normal: {
-                  color: 'rgba(24, 212, 221, 0.6)',
+                  color: "rgba(24, 212, 221, 0.6)",
                   lineStyle: {
-                    color: 'rgba(24, 212, 221, 0.6)' //改变折线颜色
-                  }
-                }
-              }
-            }
-          ]
-        })
+                    color: "rgba(24, 212, 221, 0.6)", //改变折线颜色
+                  },
+                },
+              },
+            },
+          ],
+        });
       }
-    }
+    };
     //创建右侧echarts图表
     const rightChart = () => {
-      let data1: number[] = []
-      let data2: number[] = []
+      let data1: number[] = [];
+      let data2: number[] = [];
       for (let i = 0; i < 9; i++) {
-        data1.push(Number((Math.random() * 1000).toFixed(0)))
-        data2.push(Number((Math.random() * 1000).toFixed(0)))
+        data1.push(Number((Math.random() * 1000).toFixed(0)));
+        data2.push(Number((Math.random() * 1000).toFixed(0)));
       }
-      let chartDom = document.getElementById('right-chart')!
-      let myChart = echarts.init(chartDom)
-      let yData = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9']
+      let chartDom = document.getElementById("right-chart")!;
+      let myChart = echarts.init(chartDom);
+      let yData = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"];
       myChart.setOption({
         tooltip: {
-          trigger: 'axis'
+          trigger: "axis",
         },
-        color: ['rgba(200,200,200,0.6)', 'rgba(24, 254, 254, 0.8)'],
+        color: ["rgba(200,200,200,0.6)", "rgba(24, 254, 254, 0.8)"],
         grid: {
-          top: '0%',
-          left: '1%',
-          right: '0%',
-          bottom: '0%',
-          containLabel: true
+          top: "0%",
+          left: "1%",
+          right: "0%",
+          bottom: "1%",
+          containLabel: true,
         },
         xAxis: {
-          type: 'value',
+          type: "value",
           boundaryGap: [0, 0.01],
-          show: false
+          show: false,
         },
         yAxis: {
-          type: 'category',
+          type: "category",
           data: yData.reverse(),
           splitLine: {
             //网格线样式
             lineStyle: {
-              color: 'rgba(255, 255, 255, 0.1)'
+              color: "rgba(255, 255, 255, 0.1)",
             },
-            show: true
+            show: true,
           },
           axisLabel: {
             textStyle: {
-              fontSize: '14px',
-              color: '#fff'
-            }
-          }
+              fontSize: "14px",
+              color: "#fff",
+            },
+          },
         },
         series: [
           {
-            name: '出',
-            type: 'bar',
+            name: "出",
+            type: "bar",
             data: data1,
             label: {
               show: true,
-              position: 'left',
+              position: "left",
               valueAnimation: true,
               textStyle: {
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '12px'
-              }
-            }
+                color: "rgba(255,255,255,0.8)",
+                fontSize: "12px",
+              },
+            },
           },
           {
-            name: '入',
-            type: 'bar',
+            name: "入",
+            type: "bar",
             data: data2,
             label: {
               show: true,
-              position: 'left',
+              position: "left",
               valueAnimation: true,
               textStyle: {
-                color: 'rgba(150,150,150,1)',
-                fontSize: '12px'
-              }
-            }
-          }
+                color: "rgba(150,150,150,1)",
+                fontSize: "12px",
+              },
+            },
+          },
         ],
         animationDuration: 0,
         animationDurationUpdate: 5000,
-        animationEasing: 'linear',
-        animationEasingUpdate: 'linear'
-      })
-    }
+        animationEasing: "linear",
+        animationEasingUpdate: "linear",
+      });
+    };
     onMounted(() => {
-      alarmShadow()
-      initBabylon()
-      createScene()
-      createChart()
-      rightChart()
+      alarmShadow();
+      initBabylon();
+      createScene();
+      createChart();
+      rightChart();
       setInterval(() => {
-        rightChart() //刷新echarts数据
-      }, 5000)
-    })
+        rightChart(); //刷新echarts数据
+      }, 5000);
+    });
     return {
       babylon,
       state,
@@ -834,10 +867,11 @@ export default defineComponent({
       btnList,
       btnChange,
       meshReset,
-      meshAnimo
-    }
-  }
-})
+      meshAnimo,
+      store,
+    };
+  },
+});
 </script>
 <style lang="scss" scoped>
 .container {
@@ -867,8 +901,10 @@ export default defineComponent({
   padding-top: 120px;
 }
 .right {
-  width: 260px;
+  width: 270px;
   padding-top: 110px;
+  display: flex;
+  flex-direction: column;
 }
 .bottom {
   z-index: 10;
@@ -967,12 +1003,72 @@ export default defineComponent({
 }
 .right-card {
   width: 100%;
-  height: 70%;
+  display: flex;
+  flex-direction: column;
+  &:nth-child(1) {
+    height: 70%;
+  }
+  &:nth-child(2) {
+    flex-grow: 1;
+  }
+  .right-weather {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    .weather-bottom {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.029);
+      .flex-column {
+        width: 50%;
+        &:nth-child(1) {
+          border-right: 1px solid rgb(200, 200, 200);
+        }
+        &:nth-child(2) {
+          border-left: 1px solid rgb(200, 200, 200);
+        }
+      }
+      span {
+        font-size: 22px;
+        color: #fff;
+        &:nth-child(1) {
+          font-size: 12px;
+          color: rgba(170, 170, 170);
+        }
+      }
+    }
+    .humidity-cirle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: rgb(255, 255, 255);
+      box-shadow: 0 0 4px 0px rgba(216, 216, 216, 0.8);
+      span {
+        font-size: 24px;
+        &:nth-child(2) {
+          font-size: 16px;
+          color: rgb(170, 170, 170);
+        }
+      }
+    }
+  }
+  .right-chart {
+    flex-grow: 1;
+    width: 100%;
+  }
   hgroup {
     // margin: 16px;
     // margin-top: 0;
     margin-bottom: 20px;
     h2 {
+      letter-spacing: 3px;
       text-align: left;
       color: #fff;
       font-weight: bold;

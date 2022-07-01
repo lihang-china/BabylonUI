@@ -24,8 +24,23 @@
             {{ item.label }}
           </a-menu-item>
         </a-menu>
+        <div class="header-weather">
+          <img :src="require('@/assets/weather.png')" alt="" />
+          <div class="flex-column">
+            <div>
+              <h2>{{ state.weatherData.temperature }}</h2>
+              <span>℃</span>
+            </div>
+            <span>晴</span>
+          </div>
+        </div>
       </div>
       <div class="header-right">
+        <div class="flex-column">
+          <span> 天气 </span>
+          <span> 切换 </span>
+        </div>
+
         <img
           @click="changeState"
           :src="
@@ -36,8 +51,8 @@
           alt=""
         />
         <div class="header-time">
-          <span>{{ moment(state.time).format('HH:mm:ss') }}</span>
-          <span>{{ moment(state.time).format('YYYY/MM/DD') }} 年月日</span>
+          <span>{{ moment(state.time).format("HH:mm:ss") }}</span>
+          <span>{{ moment(state.time).format("YYYY/MM/DD") }} 年月日</span>
         </div>
       </div>
     </div>
@@ -45,52 +60,71 @@
   </div>
 </template>
 <script lang="ts">
-import { RadarChartOutlined } from '@ant-design/icons-vue'
-import { defineComponent, onMounted, reactive } from 'vue'
-import moment from 'moment'
-import { useRouter } from 'vue-router'
-import store from '@/store'
+import AMapLoader from "@amap/amap-jsapi-loader";
+import { RadarChartOutlined } from "@ant-design/icons-vue";
+import { defineComponent, onMounted, reactive } from "vue";
+import moment from "moment";
+import { useRouter } from "vue-router";
+import store from "@/store";
 export default defineComponent({
   components: {
-    RadarChartOutlined
+    RadarChartOutlined,
   },
   setup() {
-    const router = useRouter()
+    const router = useRouter();
     const state = reactive<any>({
       meshState: 0,
       menuList: [
-        { label: '综合首页' },
-        { label: '智能巡检' },
-        { label: '设备管理' },
-        { label: '实时告警' }
+        { label: "综合首页" },
+        { label: "智能巡检" },
+        { label: "设备管理" },
+        { label: "实时告警" },
       ],
-      time: new Date()
-    })
+      time: new Date(),
+      weatherData: {},
+    });
+    const getWeather = () => {
+      AMapLoader.load({
+        key: "6a572530732922af32cf42baea2ce7fc", // 申请好的Web端开发者Key，首次调用 load 时必填
+        version: "2.0", // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
+        plugins: ["AMap.Weather"], // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+      }).then((AMap) => {
+        let weather = new AMap.Weather();
+        weather.getLive("杭州市", function (err: any, data: any) {
+          state.weatherData = data;
+          store.state.weatherData = data;
+        });
+      });
+    };
     const changeState = () => {
-      state.meshState === 0 ? (state.meshState = 1) : (state.meshState = 0)
-      store.state.meshState = state.meshState
-    }
+      state.meshState === 0 ? (state.meshState = 1) : (state.meshState = 0);
+      store.state.meshState = state.meshState;
+    };
     onMounted(() => {
-      router.push('/gis')
+      getWeather();
+      router.push("/gis");
       setInterval(() => {
-        state.time = new Date()
-      }, 1000)
-    })
+        state.time = new Date();
+      }, 1000);
+      setInterval(() => {
+        getWeather();
+      }, 600000);
+    });
     return {
       state,
       moment,
-      changeState
-    }
-  }
-})
+      changeState,
+    };
+  },
+});
 </script>
 
 <style lang="scss" scoped>
 @font-face {
-  font-family: 'colfont';
-  src: url('../font/Coalition-v2-1.ttf');
-  font-family: 'elefont';
-  src: url('../font/ele.ttf');
+  font-family: "colfont";
+  src: url("../font/Coalition-v2-1.ttf");
+  font-family: "elefont";
+  src: url("../font/ele.ttf");
 }
 .container {
   padding: 0;
@@ -116,11 +150,37 @@ export default defineComponent({
   .header-menu {
     flex-grow: 1;
     margin: 0 16px;
-    height: 57px;
     display: flex;
-    flex-direction: column;
     justify-content: center;
+    .header-weather {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+      justify-content: flex-end;
+      margin-right: 16px;
+      .flex-column {
+        margin-left: 16px;
+        h2 {
+          display: inline;
+          margin: 0;
+          font-size: 32px;
+          font-family: elefont;
+          line-height: 28px;
+        }
+        span {
+          font-size: 16px;
+          text-align: left;
+        }
+      }
+      img {
+        width: 60px;
+        border: 1px solid rgba(24, 254, 254);
+        background-color: rgb(255, 94, 44);
+        padding: 4px;
+      }
+    }
     ::v-deep .ant-menu {
+      margin-top: 10px;
       font-size: 16px;
       color: rgba(255, 255, 255, 0.7);
       background-color: rgba(0, 0, 0, 0);
@@ -143,6 +203,7 @@ export default defineComponent({
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    width: 260px;
     .header-time {
       display: flex;
       flex-direction: column;
@@ -150,6 +211,7 @@ export default defineComponent({
       align-items: flex-end;
       span {
         text-align: center;
+        width: 140px;
         &:nth-child(1) {
           font-size: 32px;
           font-weight: 600;
@@ -165,7 +227,7 @@ export default defineComponent({
     }
     img {
       height: 40px;
-      margin-right: 16px;
+      margin: 0 16px 0 8px;
       &:hover {
         cursor: pointer;
       }
@@ -192,7 +254,7 @@ export default defineComponent({
             line-height: 38px;
             text-shadow: 0px 0px 5px rgb(255, 255, 255);
             letter-spacing: 2px;
-            font-family: 'colfont';
+            font-family: "colfont";
             font-weight: bold;
           }
           &:nth-child(2) {

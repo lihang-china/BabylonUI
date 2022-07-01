@@ -10,7 +10,8 @@ import { createStore } from "vuex";
 
 export default createStore({
   state: {
-    meshState:0
+    meshState:0,
+    weatherData:{}
   },
   mutations: {},
   actions: {},
