@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-07-01 16:42:48
+ * @LastEditTime: 2022-07-01 16:49:22
 -->
 <template>
   <div class="container">
@@ -66,7 +66,7 @@
       </div>
     </div>
     <transition name="fade">
-      <loading v-if="false" :loading="state.loading" />
+      <loading v-if="!state.show" :loading="state.loading" />
     </transition>
   </div>
 </template>
@@ -1012,8 +1012,8 @@ export default defineComponent({
 .alarm-shadow {
   transition: all 0.8s;
   // box-shadow: 0 0 100px 0px rgb(128, 37, 33, 1) inset;
-  background-color: rgba(196, 10, 0, 0.6);
-  box-shadow: 0 0 20px 3px rgba(196, 10, 0, 1);
+  background-color: rgba(179, 9, 0, 0.5);
+  box-shadow: 0 0 20px 3px rgba(179, 9, 0, 0.8);
 }
 .alarm-unshadow {
   transition: all 0.8s;
