@@ -727,12 +727,12 @@ export default defineComponent({
             type: "category",
             boundaryGap: false,
             show: true,
-            data:['6.1','6.2','6.3','6.4','6.5','6.6','6.7'],
-               axisLabel: {
-            textStyle:{
-              color:'rgba(255,255,255,0.7)'
-            }
-               }
+            data: ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7"],
+            axisLabel: {
+              textStyle: {
+                color: "rgba(255,255,255,0.7)",
+              },
+            },
           },
           yAxis: {
             type: "value",
@@ -773,10 +773,13 @@ export default defineComponent({
     const rightChart = () => {
       let data1: number[] = [];
       let data2: number[] = [];
-      for (let i = 0; i < 9; i++) {
-        data1.push(Number((Math.random() * 1000).toFixed(0)));
-        data2.push(Number((Math.random() * 1000).toFixed(0)));
-      }
+      setInterval(() => {
+        for (let i = 0; i < 9; i++) {
+          data1.push(Number((Math.random() * 1000).toFixed(0)));
+          data2.push(Number((Math.random() * 1000).toFixed(0)));
+        }
+      },1000);
+
       let chartDom = document.getElementById("right-chart")!;
       let myChart = echarts.init(chartDom);
       let yData = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"];
@@ -856,9 +859,6 @@ export default defineComponent({
       createScene();
       createChart();
       rightChart();
-      setInterval(() => {
-        rightChart(); //刷新echarts数据
-      }, 5000);
     });
     return {
       babylon,
