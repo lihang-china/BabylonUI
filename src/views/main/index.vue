@@ -773,25 +773,23 @@ export default defineComponent({
     const rightChart = () => {
       let data1: number[] = [];
       let data2: number[] = [];
-      setInterval(() => {
-        for (let i = 0; i < 9; i++) {
-          data1.push(Number((Math.random() * 1000).toFixed(0)));
-          data2.push(Number((Math.random() * 1000).toFixed(0)));
-        }
-      },1000);
-
+      for (let i = 0; i < 9; i++) {
+        data1.push(Number((Math.random() * 1000).toFixed(0)));
+        data2.push(Number((Math.random() * 1000).toFixed(0)));
+      }
       let chartDom = document.getElementById("right-chart")!;
       let myChart = echarts.init(chartDom);
       let yData = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"];
-      myChart.setOption({
+      let option: any;
+      option = {
         tooltip: {
           trigger: "axis",
         },
-        color: ["rgba(200,200,200,0.6)", "rgba(24, 254, 254, 0.8)"],
+        color: ["rgba(200,200,200,0.6)", "rgba(24, 254, 254, 1)"],
         grid: {
           top: "0%",
           left: "1%",
-          right: "0%",
+          right: "10%",
           bottom: "1%",
           containLabel: true,
         },
@@ -822,13 +820,21 @@ export default defineComponent({
             name: "出",
             type: "bar",
             data: data1,
+            barWidth: 10,
+            barGap: "100%" /*多个并排柱子设置柱子之间的间距*/,
             label: {
               show: true,
-              position: "left",
+              position: "right",
               valueAnimation: true,
               textStyle: {
                 color: "rgba(255,255,255,0.8)",
                 fontSize: "12px",
+              },
+            },
+            itemStyle: {
+              normal: {
+                //柱形图圆角，初始化效果
+                barBorderRadius: [0, 10, 10, 0],
               },
             },
           },
@@ -836,13 +842,21 @@ export default defineComponent({
             name: "入",
             type: "bar",
             data: data2,
+            barWidth: 10,
+            barGap: "100%" /*多个并排柱子设置柱子之间的间距*/,
             label: {
               show: true,
-              position: "left",
+              position: "right",
               valueAnimation: true,
               textStyle: {
                 color: "rgba(150,150,150,1)",
                 fontSize: "12px",
+              },
+            },
+            itemStyle: {
+              normal: {
+                //柱形图圆角，初始化效果
+                barBorderRadius: [0, 10, 10, 0],
               },
             },
           },
@@ -851,7 +865,26 @@ export default defineComponent({
         animationDurationUpdate: 5000,
         animationEasing: "linear",
         animationEasingUpdate: "linear",
-      });
+      };
+      setInterval(() => {
+        for (let i = 0; i < 9; i++) {
+          data1[i] = Number((Math.random() * 1000).toFixed(0));
+          data2[i] = Number((Math.random() * 1000).toFixed(0));
+        }
+        myChart.setOption({
+          series: [
+            {
+              type: "bar",
+              data: data1,
+            },
+            {
+              type: "bar",
+              data: data2,
+            },
+          ],
+        });
+      }, 5000);
+      option && myChart.setOption(option);
     };
     onMounted(() => {
       alarmShadow();
