@@ -27,21 +27,21 @@
         <div class="header-weather">
           <img :src="require('@/assets/weather.png')" alt="" />
           <div class="flex-column">
-            <div>
-              <h2>{{ state.weatherData.temperature }}</h2>
+            <div class="top">
+              <span>{{ state.weatherData.temperature }}</span>
               <span>℃</span>
             </div>
-            <span>晴</span>
+            <span class="bottom">{{ state.weatherData.weather }}</span>
           </div>
         </div>
       </div>
       <div class="header-right">
         <div class="flex-column">
-          <span> 天气 </span>
-          <span> 切换 </span>
+          <span> 模型 </span>
+          <span> 状态 </span>
         </div>
-
-        <img
+        <div class="mesh-weather">昼</div>
+        <!-- <img
           @click="changeState"
           :src="
             state.meshState === 0
@@ -49,10 +49,10 @@
               : require('@/assets/moon.png')
           "
           alt=""
-        />
+        /> -->
         <div class="header-time">
           <span>{{ moment(state.time).format("HH:mm:ss") }}</span>
-          <span>{{ moment(state.time).format("YYYY/MM/DD") }} 年月日</span>
+          <span>{{ moment(state.time).format("YYYY/MM/DD") }} | 年月日</span>
         </div>
       </div>
     </div>
@@ -124,7 +124,7 @@ export default defineComponent({
   font-family: "colfont";
   src: url("../font/Coalition-v2-1.ttf");
   font-family: "elefont";
-  src: url("../font/ele.ttf");
+  src: url("../font/myfont.ttf");
 }
 .container {
   padding: 0;
@@ -160,22 +160,24 @@ export default defineComponent({
       margin-right: 16px;
       .flex-column {
         margin-left: 16px;
-        h2 {
-          display: inline;
-          margin: 0;
-          font-size: 32px;
-          font-family: elefont;
-          line-height: 28px;
-        }
         span {
-          font-size: 16px;
+          &:nth-child(1) {
+            font-size: 28px;
+            line-height: 28px;
+          }
+          font-size: 14px;
+          line-height: 20px;
           text-align: left;
+        }
+        .bottom {
+          line-height: 12px;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.6);
         }
       }
       img {
-        width: 60px;
-        border: 1px solid rgba(24, 254, 254);
-        background-color: rgb(255, 94, 44);
+        width: 44px;
+        border: 3px solid #06f7a1;
         padding: 4px;
       }
     }
@@ -210,24 +212,45 @@ export default defineComponent({
       margin-right: 16px;
       align-items: flex-end;
       span {
-        text-align: center;
-        width: 140px;
+        text-align: left;
+        width: 130px;
         &:nth-child(1) {
           font-size: 32px;
           font-weight: 600;
-          letter-spacing: 5px;
+          letter-spacing: 4px;
           line-height: 34px;
           font-family: elefont;
         }
         &:nth-child(2) {
           font-size: 14px;
-          letter-spacing: 1px;
+          letter-spacing: 0px;
         }
       }
     }
-    img {
-      height: 40px;
-      margin: 0 16px 0 8px;
+    .flex-column {
+      border: 3px solid #06f7a1;
+      border-right: 0;
+      border-left: 0;
+      width: 42px;
+      height: 42px;
+      letter-spacing: 4px;
+      align-items: center;
+      padding-top: 4px;
+      span {
+        line-height: 16px;
+      }
+    }
+    .mesh-weather {
+      // border: 2px solid rgb(0, 255, 191);
+      width: 42px;
+      line-height: 38px;
+      height: 42px;
+      margin: 0 16px 0 0;
+      font-size: 14px;
+      border: 3px solid #06f7a1;
+      border-left: 0;
+      background-color: rgba(0, 0, 0, 0.1);
+      color: rgb(236, 236, 236);
       &:hover {
         cursor: pointer;
       }

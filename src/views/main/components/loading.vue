@@ -32,7 +32,7 @@
       <a-progress
         :stroke-color="{
           '0%': 'rgba(0, 20, 29, 0.5)',
-          '100%': 'rgb(10,240,250)'
+          '100%': 'rgb(10,240,250)',
         }"
         :success="{ strokeColor: 'rgb(10,240,250)' }"
         :percent="prop.loading"
@@ -41,25 +41,25 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'
-import { RadarChartOutlined } from '@ant-design/icons-vue'
+import { defineComponent, reactive, watch } from "vue";
+import { RadarChartOutlined } from "@ant-design/icons-vue";
 export default defineComponent({
   components: {
-    RadarChartOutlined
+    RadarChartOutlined,
   },
   props: {
     loading: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   setup(props) {
-    const prop = reactive<any>(props)
+    const prop = reactive<any>(props);
     return {
-      prop
-    }
-  }
-})
+      prop,
+    };
+  },
+});
 </script>
 <style lang="scss" scoped>
 .loading {
@@ -83,7 +83,7 @@ export default defineComponent({
     align-items: flex-end;
     justify-content: flex-end;
     font-size: 62px;
-    color: rgb(255,255,255);
+    color: rgb(255, 255, 255);
   }
   .loading-textarea {
     text-align: left;
