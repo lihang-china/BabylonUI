@@ -985,6 +985,7 @@ export default defineComponent({
   }
 }
 .card-meshinfo {
+  width: 100%;
   ul {
     width: 100%;
     padding: 0;

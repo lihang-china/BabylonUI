@@ -40,7 +40,9 @@
           <span> 模型 </span>
           <span> 状态 </span>
         </div>
-        <div class="mesh-weather">昼</div>
+        <div class="mesh-weather" @click="changeState">
+          {{ state.meshState === 0 ? "昼" : "夜" }}
+        </div>
         <!-- <img
           @click="changeState"
           :src="

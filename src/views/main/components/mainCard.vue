@@ -58,6 +58,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .main-card {
+  width: 100%;
   min-width: 200px;
   .card-header {
     margin: 0;
