@@ -42,7 +42,10 @@
         </div>
       </my-card>
       <my-card :title="'告警监控'" class="card-meshinfo">
-        <div :class="state.shadow ? 'alarm-shadow' : 'alarm-unshadow'">
+        <div
+          style="width: 100%"
+          :class="state.shadow ? 'alarm-shadow' : 'alarm-unshadow'"
+        >
           <a-table
             :customRow="customRow"
             :pagination="false"
@@ -222,6 +225,8 @@ export default defineComponent({
       }
       myMesh.forEach(
         (e: { disableEdgesRendering: () => void }, index: number) => {
+          console.log(1);
+
           e.disableEdgesRendering(); //关闭边缘发光
           if (index !== 0) {
             hl.removeMesh(e); //关闭模型描边
@@ -230,44 +235,48 @@ export default defineComponent({
       );
       light.diffuse = new BABYLON.Color3(1, 1, 1); //重置半球光散射
       babylon.scene.freezeActiveMeshes(); //冻结活动网格
+      console.log("a");
     };
     //昼夜切换
-    const meshChange = (val: number) => {
+    const meshChange = async (val: number) => {
       // 天空动态切换
-      babylon.scene.unfreezeActiveMeshes();
+      await babylon.scene.unfreezeActiveMeshes();
       timer ? clearInterval(timer) : ""; //判断计时器是否存在
-      let speed = 10; // 昼夜切换速度
       if (val === 1) {
         timer = setInterval(() => {
           if (light.intensity <= 0.2) {
             clearInterval(timer);
             babylon.scene.freezeActiveMeshes();
           } else {
-            light.intensity -= 0.01; //灯光明暗递减
-            skybox.material.alpha -= 0.018; //天空盒透明度递减
+            light.intensity -= 0.02; //灯光明暗递减
+            skybox.material.alpha -= 0.028; //天空盒透明度递减
             light.diffuse = new BABYLON.Color3(
               light.intensity,
               light.intensity,
               light.intensity
             );
           }
-        }, speed);
+        }, 10);
       } else {
         timer = setInterval(() => {
           if (light.intensity >= 1) {
             clearInterval(timer);
-            light.diffuse = new BABYLON.Color3(1, 1, 1);
+            light.diffuse = new BABYLON.Color3(
+              light.intensity,
+              light.intensity,
+              light.intensity
+            );
             babylon.scene.freezeActiveMeshes();
           } else {
-            light.intensity += 0.01; //灯光明暗递增
-            skybox.material.alpha += 0.018; //天空盒透明度递增
+            light.intensity += 0.02; //灯光明暗递增
+            skybox.material.alpha += 0.028; //天空盒透明度递增
             light.diffuse = new BABYLON.Color3(
               light.intensity,
               light.intensity,
               light.intensity
             );
           }
-        }, speed);
+        }, 10);
       }
     };
     //分析表格按钮切换
@@ -579,7 +588,7 @@ export default defineComponent({
       );
       light.diffuse = new BABYLON.Color3(1, 1, 1);
       light.groundColor = new BABYLON.Color3(1, 0.98, 0.58);
-      light.intensity = 0.8; //光照强度
+      light.intensity = 1; //光照强度
       light.specular = BABYLON.Color3.Black(); //镜面反射颜色
       skybox = BABYLON.Mesh.CreateBox(
         //创建天空盒
