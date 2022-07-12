@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-01 16:17:10
  * @LastEditors: Your Name
- * @LastEditTime: 2022-06-28 15:58:16
+ * @LastEditTime: 2022-07-12 13:30:24
 -->
 <template>
   <div class="container">
@@ -41,7 +41,7 @@
           <span> 状态 </span>
         </div>
         <div class="mesh-weather" @click="changeState">
-          {{ state.meshState === 0 ? "昼" : "夜" }}
+          {{ state.meshState === 0 ? '昼' : '夜' }}
         </div>
         <!-- <img
           @click="changeState"
@@ -53,8 +53,8 @@
           alt=""
         /> -->
         <div class="header-time">
-          <span>{{ moment(state.time).format("HH:mm:ss") }}</span>
-          <span>{{ moment(state.time).format("YYYY/MM/DD") }} | 年月日</span>
+          <span>{{ moment(state.time).format('HH:mm:ss') }}</span>
+          <span>{{ moment(state.time).format('YYYY/MM/DD') }} | 年月日</span>
         </div>
       </div>
     </div>
@@ -62,71 +62,78 @@
   </div>
 </template>
 <script lang="ts">
-import AMapLoader from "@amap/amap-jsapi-loader";
-import { RadarChartOutlined } from "@ant-design/icons-vue";
-import { defineComponent, onMounted, reactive } from "vue";
-import moment from "moment";
-import { useRouter } from "vue-router";
-import store from "@/store";
+import AMapLoader from '@amap/amap-jsapi-loader'
+import { RadarChartOutlined } from '@ant-design/icons-vue'
+import { defineComponent, onMounted, reactive } from 'vue'
+import moment from 'moment'
+import { useRouter } from 'vue-router'
+import store from '@/store'
 export default defineComponent({
   components: {
-    RadarChartOutlined,
+    RadarChartOutlined
   },
   setup() {
-    const router = useRouter();
+    const router = useRouter()
     const state = reactive<any>({
       meshState: 0,
       menuList: [
-        { label: "综合首页" },
-        { label: "智能巡检" },
-        { label: "设备管理" },
-        { label: "实时告警" },
+        { label: '综合首页' },
+        { label: '智能巡检' },
+        { label: '设备管理' },
+        { label: '实时告警' }
       ],
       time: new Date(),
-      weatherData: {},
-    });
+      weatherData: {}
+    })
     const getWeather = () => {
       AMapLoader.load({
-        key: "6a572530732922af32cf42baea2ce7fc", // 申请好的Web端开发者Key，首次调用 load 时必填
-        version: "2.0", // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
-        plugins: ["AMap.Weather"], // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+        key: '6a572530732922af32cf42baea2ce7fc', // 申请好的Web端开发者Key，首次调用 load 时必填
+        version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
+        plugins: ['AMap.Weather'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       }).then((AMap) => {
-        let weather = new AMap.Weather();
-        weather.getLive("杭州市", function (err: any, data: any) {
-          state.weatherData = data;
-          store.state.weatherData = data;
-        });
-      });
-    };
+        let weather = new AMap.Weather()
+        weather.getLive('杭州市', function (err: any, data: any) {
+          state.weatherData = data
+          store.state.weatherData = data
+        })
+      })
+    }
     const changeState = () => {
-      state.meshState === 0 ? (state.meshState = 1) : (state.meshState = 0);
-      store.state.meshState = state.meshState;
-    };
+      state.meshState === 0 ? (state.meshState = 1) : (state.meshState = 0)
+      store.state.meshState = state.meshState
+    }
+    const CreateTime = () => {
+      setTimeout(() => {
+        state.time = new Date()
+        CreateTime()
+      }, 1000)
+    }
+    const initWeather = () => {
+      setTimeout(() => {
+        getWeather()
+      }, 600000)
+    }
     onMounted(() => {
-      getWeather();
-      router.push("/gis");
-      setInterval(() => {
-        state.time = new Date();
-      }, 1000);
-      setInterval(() => {
-        getWeather();
-      }, 600000);
-    });
+      CreateTime()
+      getWeather()
+      initWeather()
+      router.push('/gis')
+    })
     return {
       state,
       moment,
-      changeState,
-    };
-  },
-});
+      changeState
+    }
+  }
+})
 </script>
 
 <style lang="scss" scoped>
 @font-face {
-  font-family: "colfont";
-  src: url("../font/Coalition-v2-1.ttf");
-  font-family: "elefont";
-  src: url("../font/myfont.ttf");
+  font-family: 'colfont';
+  src: url('../font/Coalition-v2-1.ttf');
+  font-family: 'elefont';
+  src: url('../font/myfont.ttf');
 }
 .container {
   padding: 0;
@@ -279,7 +286,7 @@ export default defineComponent({
             line-height: 38px;
             text-shadow: 0px 0px 5px rgb(255, 255, 255);
             letter-spacing: 2px;
-            font-family: "colfont";
+            font-family: 'colfont';
             font-weight: bold;
           }
           &:nth-child(2) {
