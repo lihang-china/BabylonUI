@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-07-12 11:15:34
  * @LastEditors: Your Name
- * @LastEditTime: 2022-07-12 13:13:56
+ * @LastEditTime: 2022-07-22 13:45:27
  */
 import * as echarts from 'echarts'
 export function leftCharts(dom: any, data: number[]) {
@@ -156,14 +156,13 @@ export function rightCharts(dom:any) {
       }
     ],
     animationDuration: 0,
-    animationDurationUpdate: 5000,
+    animationDurationUpdate: 10000,
     animationEasing: 'linear',
     animationEasingUpdate: 'linear'
   }
 
   const fn = async () => {
     await setTimeout(() => {
-      console.log(1)
       for (let i = 0; i < 9; i++) {
         data1[i] = Number((Math.random() * 1000).toFixed(0))
         data2[i] = Number((Math.random() * 1000).toFixed(0))
@@ -181,7 +180,7 @@ export function rightCharts(dom:any) {
         ]
       })
       fn()
-    }, 5000)
+    }, 10000)
   }
   fn()
   option && myChart.setOption(option)

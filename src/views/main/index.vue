@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-07-12 16:50:43
+ * @LastEditTime: 2022-07-22 15:16:37
 -->
 <template>
   <div class="container">
@@ -514,7 +514,6 @@ export default defineComponent({
               1,
               babylon.scene
             )
-
             cylinder.position = new BABYLON.Vector3(10, -3, 85)
             cylinder.rotation.z = -0.5
             cylinder.material = myMaterial
@@ -531,18 +530,40 @@ export default defineComponent({
               time += 0.01 * babylon.scene.getAnimationRatio()
               cylinder.rotation.y = 0.8 * Math.sin(time)
             })
-            BABYLON.ParticleHelper.CreateAsync('explosion', babylon.scene).then(
-              //爆炸粒子
-              (set) => {
-                set.start()
-                set.systems.forEach((e) => {
-                  e.emitter = new BABYLON.Vector3(-5, 2, 70)
-                })
-              }
-            )
+            // BABYLON.ParticleHelper.CreateAsync('explosion', babylon.scene).then(
+            //   //爆炸粒子
+            //   (set) => {
+            //     set.start()
+            //     set.systems.forEach((e) => {
+            //       e.emitter = new BABYLON.Vector3(-5, 2, 70)
+            //     })
+            //   }
+            // )
           }
         }
       }
+    }
+    const createParticle = () => {
+      babylon.scene.unfreezeActiveMeshes() //解冻活动网格
+      BABYLON.ParticleHelper.CreateAsync('smoke', babylon.scene, true).then(
+        //烟雾粒子
+        (set) => {
+          set.start()
+          set.systems.forEach((e) => {
+            e.emitter = new BABYLON.Vector3(-5, 2, 70)
+          })
+        }
+      )
+      BABYLON.ParticleHelper.CreateAsync('fire', babylon.scene).then(
+        //火焰粒子
+        (set) => {
+          set.start()
+          set.systems.forEach((e) => {
+            e.emitter = new BABYLON.Vector3(-5, 2, 70)
+          })
+        }
+      )
+      babylon.scene.freezeActiveMeshes() //冻结活动网格
     }
     //创建babylonjs引擎
     const initBabylon = () => {
@@ -575,7 +596,7 @@ export default defineComponent({
         'textures/heightMap.png',
         { width: 10000, height: 10000, subdivisions: 100, maxHeight: 1000 }
       )
-      background.position.y = -51.5 //地板轻微下沉，防止与模型重合
+      background.position.y = -51.1 //地板轻微下沉，防止与模型重合
       background.position.x = -700
       background.position.z = 1400
       // var me = new BABYLON.StandardMaterial('myMaterial', babylon.scene)
@@ -625,15 +646,20 @@ export default defineComponent({
       backgroundMaterial.diffuseTexture = Textur
       background.material = backgroundMaterial
 
-      BABYLON.ParticleHelper.CreateAsync('rain', babylon.scene).then((set) => {
-        set.systems[0].updateSpeed = 0.1
-        set.start()
-        babylon.scene.registerBeforeRender(() => {
-          set.systems.forEach((e) => {
-            e.emitter = babylon.camera.position
+      BABYLON.ParticleHelper.CreateAsync('rain', babylon.scene, true).then(
+        (set) => {
+          set.systems[0].maxSize = 1.5
+          set.systems[0].emitRate = 60
+          set.systems[0].updateSpeed = 0.1
+          set.start()
+          babylon.scene.registerBeforeRender(() => {
+            set.systems.forEach((e) => {
+              let { x, y, z } = babylon.camera.position
+              e.emitter = new BABYLON.Vector3(x, y + 20, z)
+            })
           })
-        })
-      })
+        }
+      )
       //碰撞检测
       babylon.camera.ellipsoid = new BABYLON.Vector3(1, 1, 1)
       babylon.scene.collisionsEnabled = true
@@ -648,14 +674,13 @@ export default defineComponent({
         './',
         '3d66.gltf',
         babylon.scene,
-        (mesh) => {
-          mesh.forEach((e) => {
-            // e.setEnabled(false)
+        async (mesh) => {
+          for (let e of mesh) {
             e.freezeWorldMatrix() //减少世界矩阵计算
             if (e.material) {
               e.material.freeze() //冻结材质
             }
-          })
+          }
           myMesh = mesh
           state.show = false
           let animationBox = new BABYLON.Animation(
@@ -682,26 +707,17 @@ export default defineComponent({
           animationBox.setKeys(keys)
           babylon.camera.animations = []
           babylon.camera.animations.push(animationBox)
-          babylon.scene.beginAnimation(babylon.camera, 0, 100, false, 0.4)
-          //报警特效
-          BABYLON.ParticleHelper.CreateAsync('smoke', babylon.scene).then(
-            //烟雾粒子
-            (set) => {
-              set.start()
-              set.systems.forEach((e) => {
-                e.emitter = new BABYLON.Vector3(-5, 2, 70)
-              })
-            }
+          let animo = babylon.scene.beginAnimation(
+            babylon.camera,
+            0,
+            100,
+            false,
+            0.4
           )
-          BABYLON.ParticleHelper.CreateAsync('fire', babylon.scene).then(
-            //火焰粒子
-            (set) => {
-              set.start()
-              set.systems.forEach((e) => {
-                e.emitter = new BABYLON.Vector3(-5, 2, 70)
-              })
-            }
-          )
+          await animo.waitAsync()
+          createParticle()
+
+          //  报警特效
         },
         (load) => {
           //模型加载进度

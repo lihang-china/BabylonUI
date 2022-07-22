@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-01 16:17:10
  * @LastEditors: Your Name
- * @LastEditTime: 2022-07-12 13:30:24
+ * @LastEditTime: 2022-07-22 13:17:15
 -->
 <template>
   <div class="container">
@@ -108,15 +108,15 @@ export default defineComponent({
         CreateTime()
       }, 1000)
     }
-    const initWeather = () => {
-      setTimeout(() => {
-        getWeather()
-      }, 600000)
-    }
+    // const initWeather = () => {
+    //   setTimeout(() => {
+    //     getWeather()
+    //   }, 600000)
+    // }
     onMounted(() => {
       CreateTime()
       getWeather()
-      initWeather()
+      // initWeather()
       router.push('/gis')
     })
     return {
