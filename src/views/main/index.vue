@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-08 09:16:22
  * @LastEditors: Your Name
- * @LastEditTime: 2022-07-22 15:16:37
+ * @LastEditTime: 2022-09-27 14:55:46
 -->
 <template>
   <div class="container">
@@ -219,10 +219,6 @@ export default defineComponent({
         babylon.scene.getMeshById('cylinder').dispose() //处理模型
       }
       if (babylon.scene.getMaterialByName('mat')) {
-        //判断发光材质是否存在
-        babylon.scene.getMaterialByName('mat').dispose() //处理材质
-        babylon.scene.getMeshById('pathCy').dispose() //处理模型
-        babylon.scene.getMeshById('torus').dispose() //处理模型
         for (let i = 0; i <= myMesh.length; i++) {
           if (i <= 1000) {
             myMesh[i].disableEdgesRendering() //关闭模型描边
@@ -233,6 +229,10 @@ export default defineComponent({
           // hl.removeMesh(myMesh[i])  //关闭边缘发光
           // }
         }
+        //判断发光材质是否存在
+        babylon.scene.getMaterialByName('mat').dispose() //处理材质
+        babylon.scene.getMeshById('pathCy').dispose() //处理模型
+        babylon.scene.getMeshById('torus').dispose() //处理模型
       }
       babylon.scene.freezeActiveMeshes() //冻结活动网格
     }
