@@ -40,12 +40,11 @@ export default {
       )
       // babylon.scene.gravity = new BABYLON.Vector3(0, -0.9, 0)
       // babylon.camera.applyGravity = true
-      light.intensity = 0.2 //光照强度
+      light.intensity = 0.1 //光照强度
       light.specular = new BABYLON.Color3(0, 0, 0) //镜面反射颜色
-      // light.diffuse = new BABYLON.Color3(0, 0.18, 0.28)
-      // light.groundColor = new BABYLON.Color3(0, 0.18, 0.28)
-      ;(light.position = new BABYLON.Vector3(100, 100, 100)),
-        (babylon.camera.ellipsoid = new BABYLON.Vector3(1.2, 0.8, 1)) //相机碰撞半径
+      //  light.diffuse = new BABYLON.Color3(0.6, 0.81, 1)
+      //   light.groundColor = new BABYLON.Color3(0.6, 0.81, 1)
+      babylon.camera.ellipsoid = new BABYLON.Vector3(1.2, 0.8, 1) //相机碰撞半径
       // babylon.camera.collisionRadius = new BABYLON.Vector3(0.8, 0.8, 0.8)
       babylon.scene.collisionsEnabled = true
       babylon.camera.checkCollisions = true
@@ -54,16 +53,17 @@ export default {
         new BABYLON.Vector3(0, -1, 0),
         babylon.scene
       )
-      light2.specular = new BABYLON.Color3(0.01, 0.01, 0.01) //镜面反射颜色
-      light2.diffuse = new BABYLON.Color3(0.33, 0.43, 0.54)
-      light2.groundColor = new BABYLON.Color3(0.33, 0.43, 0.54)
-      light2.intensity = 2
+      light2.specular = new BABYLON.Color3(0.1, 0.1, 0.1) //镜面反射颜色
+      light2.diffuse = new BABYLON.Color3(0.6, 0.81, 1)
+      light2.emissive = new BABYLON.Color3(0.6, 0.81, 1)
+      light2.groundColor = new BABYLON.Color3(0.6, 0.81, 1)
+      light2.intensity = 0.5
       light2.position = new BABYLON.Vector3(100, 100, 0)
       var shadowGenerator = new BABYLON.ShadowGenerator(1024, light2)
 
       //自发光
       var gl = new BABYLON.GlowLayer('glow', babylon.scene)
-      gl.intensity = 0.3
+      gl.intensity = 0.4
       gl.customEmissiveColorSelector = function (
         mesh,
         subMesh,
@@ -99,14 +99,23 @@ export default {
       Textur.uScale = 0.01
       Textur.vScale = 0.01
       var myMaterial = new BABYLON.StandardMaterial('myMaterial', babylon.scene)
-      myMaterial.diffuseTexture = Textur
+      myMaterial.diffuseTexture = new BABYLON.Texture(
+        'textures/topb2.jpg',
+        babylon.scene
+      )
+      myMaterial.specularTexture = new BABYLON.Texture(
+        'textures/topb2.jpg',
+        babylon.scene
+      )
+      myMaterial.diffuseColor = new BABYLON.Color3(0.6, 0.81, 1)
+      myMaterial.emissiveColor = new BABYLON.Color3(0.4, 0.4, 0.4)
       var hl = new BABYLON.HighlightLayer('hl1', babylon.scene)
       babylon.scene.environmentTexture =
         BABYLON.CubeTexture.CreateFromPrefilteredData(
           'textures/environment.env',
           babylon.scene
         )
-      babylon.scene.environmentIntensity = 0.4
+      babylon.scene.environmentIntensity = 0.3
       var pbr = new BABYLON.PBRMaterial('pbr', babylon.scene)
       BABYLON.SceneLoader.ImportMesh(
         //加载本地gltf模型
@@ -116,6 +125,7 @@ export default {
         babylon.scene,
         async (mesh) => {
           for (let e of mesh) {
+            e.specular = new BABYLON.Color3(0, 0, 0)
             if (e.name === 'Component71' || e.name === 'Component72') {
               e.material = new BABYLON.StandardMaterial(
                 'myMaterial',
@@ -155,16 +165,12 @@ export default {
               e.material.emissiveColor = new BABYLON.Color3(0.6, 0.81, 1)
             }
             if (e.name === 'Component78') {
-              e.material = new BABYLON.StandardMaterial(
-                'myMaterial',
-                babylon.scene
-              )
-              e.material.diffuseColor = new BABYLON.Color3(0.05, 0.05, 0.05)
+              e.material = myMaterial
             }
             if (e.name === 'Component165') {
               e.material = myMaterial
-              e.material.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5)
-              e.material.emissiveColor = new BABYLON.Color3(0.5, 0.5, 0.5)
+              e.material.diffuseColor = new BABYLON.Color3(1, 1, 1)
+              e.material.specularColor = new BABYLON.Color3(1, 1, 1)
             }
             if (e.name === 'Component93') {
             }
@@ -208,8 +214,8 @@ export default {
               pbr.metallic = 1
               pbr.roughness = 0.5
               pbr.clearCoat.isEnabled = true
-              babylon.scene.debugLayer.show({ showExplorer: false })
-              babylon.scene.debugLayer.select(pbr, 'CLEAR COAT')
+              // babylon.scene.debugLayer.show({ showExplorer: false })
+              // babylon.scene.debugLayer.select(pbr, 'CLEAR COAT')
             }
           }
 
