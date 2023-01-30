@@ -4,16 +4,17 @@
  * @Autor: Your Name
  * @Date: 2022-05-05 13:45:30
  * @LastEditors: Your Name
- * @LastEditTime: 2022-09-27 14:59:28
+ * @LastEditTime: 2023-01-30 14:44:23
  */
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import layout from "../layout/index.vue";
 import main from "../layout/main.vue"
+import exhall from "@/views/exhall/index.vue"
 const routes: Array<RouteRecordRaw> = [
   {
-      path: '/exhall',
-      name: 'exhall',
-      component: () => import('@/views/exhall/index.vue')
+    path: '/exhall',
+    name: 'exhall',
+    component: () => import('@/views/exhall/index.vue')
   },
   {
     path: "/",

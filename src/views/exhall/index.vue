@@ -1,5 +1,7 @@
 <template>
-  <canvas id="mycanvas" style="width: 100%; height: 100%"></canvas>
+  <div style="width: 100%; height: 100%; overflow: hidden">
+    <canvas id="mycanvas" style="width: 100%; height: 100%"></canvas>
+  </div>
 </template>
 <script>
 import * as BABYLON from 'babylonjs'
@@ -30,7 +32,6 @@ export default {
         babylon.scene
       )
       babylon.scene.clearColor = BABYLON.Color3.Black()
-
       babylon.camera.attachControl(babylon.canvas, false) //相应用户操作
       babylon.camera.speed = 0.08
       let light = new BABYLON.HemisphericLight( //创建半球光
@@ -40,7 +41,7 @@ export default {
       )
       // babylon.scene.gravity = new BABYLON.Vector3(0, -0.9, 0)
       // babylon.camera.applyGravity = true
-      light.intensity = 0.1 //光照强度
+      light.intensity = 0.6 //光照强度
       light.specular = new BABYLON.Color3(0, 0, 0) //镜面反射颜色
       //  light.diffuse = new BABYLON.Color3(0.6, 0.81, 1)
       //   light.groundColor = new BABYLON.Color3(0.6, 0.81, 1)
@@ -57,44 +58,14 @@ export default {
       light2.diffuse = new BABYLON.Color3(0.6, 0.81, 1)
       light2.emissive = new BABYLON.Color3(0.6, 0.81, 1)
       light2.groundColor = new BABYLON.Color3(0.6, 0.81, 1)
-      light2.intensity = 0.5
+      light2.intensity = 0.6
       light2.position = new BABYLON.Vector3(100, 100, 0)
       var shadowGenerator = new BABYLON.ShadowGenerator(1024, light2)
-
       //自发光
       var gl = new BABYLON.GlowLayer('glow', babylon.scene)
-      gl.intensity = 0.4
-      gl.customEmissiveColorSelector = function (
-        mesh,
-        subMesh,
-        material,
-        result
-      ) {
-        result.set(0.8, 0.8, 0.8, 0.2)
-      }
-      var gl2 = new BABYLON.GlowLayer('glow', babylon.scene, {
-        mainTextureFixedSize: 1024,
-        blurKernelSize: 50
-      })
-      gl2.intensity = 0.2
-      gl2.customEmissiveColorSelector = function (
-        mesh,
-        subMesh,
-        material,
-        result
-      ) {
-        result.set(0.6, 0.81, 1, 1)
-      }
-      var gl3 = new BABYLON.GlowLayer('glow', babylon.scene)
-      gl3.intensity = 0.01
-      gl3.customEmissiveColorSelector = function (
-        mesh,
-        subMesh,
-        material,
-        result
-      ) {
-        result.set(0, 0.17, 0.35, 1)
-      }
+      gl.intensity = 0.3
+      var gl2 = new BABYLON.GlowLayer('glow', babylon.scene)
+      gl2.intensity = 0.3
       let Textur = new BABYLON.Texture('textures/topb.jpg', babylon.scene) //地板贴图
       Textur.uScale = 0.01
       Textur.vScale = 0.01
@@ -109,13 +80,12 @@ export default {
       )
       myMaterial.diffuseColor = new BABYLON.Color3(0.6, 0.81, 1)
       myMaterial.emissiveColor = new BABYLON.Color3(0.4, 0.4, 0.4)
-      var hl = new BABYLON.HighlightLayer('hl1', babylon.scene)
       babylon.scene.environmentTexture =
         BABYLON.CubeTexture.CreateFromPrefilteredData(
           'textures/environment.env',
           babylon.scene
         )
-      babylon.scene.environmentIntensity = 0.3
+      babylon.scene.environmentIntensity = 0.5
       var pbr = new BABYLON.PBRMaterial('pbr', babylon.scene)
       BABYLON.SceneLoader.ImportMesh(
         //加载本地gltf模型
@@ -125,7 +95,6 @@ export default {
         babylon.scene,
         async (mesh) => {
           for (let e of mesh) {
-            e.specular = new BABYLON.Color3(0, 0, 0)
             if (e.name === 'Component71' || e.name === 'Component72') {
               e.material = new BABYLON.StandardMaterial(
                 'myMaterial',
@@ -140,18 +109,28 @@ export default {
               e.name === 'Component112' ||
               e.name === 'Component120' ||
               e.name === 'Component122' ||
-              e.name === 'Component118'
+              e.name === 'Component118' ||
+              e.name === 'Component77' ||
+              e.name === 'Component66'
             ) {
               gl.addIncludedOnlyMesh(e)
               shadowGenerator.getShadowMap().renderList.push(e)
-              e.material.emissiveColor = new BABYLON.Color3(1, 1, 1)
+              e.material.emissiveColor = new BABYLON.Color3(0.8, 0.8, 1)
             }
-
+            if (e.name === 'Component64' || e.name === 'Component65') {
+              e.visibility = 0
+            }
             if (e.name === 'Component70' || e.name === 'Component163') {
               e.material.diffuse = new BABYLON.Color3(0, 0, 0)
             }
-            if (e.name === 'Component158' || e.name === 'Component81') {
-              gl2.addIncludedOnlyMesh(e)
+
+            if (
+              e.name === 'Component158' ||
+              e.name === 'Component81' ||
+              e.name === 'Component169'
+            ) {
+              gl.addIncludedOnlyMesh(e)
+              e.material.emissiveColor = new BABYLON.Color3(0.02, 0.02, 0.02)
             }
             if (
               e.name === 'Component69' ||
@@ -167,6 +146,12 @@ export default {
             if (e.name === 'Component78') {
               e.material = myMaterial
             }
+            if (e.name === 'Component70') {
+              e.material.emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.1)
+              e.material.diffuseColor = new BABYLON.Color3(0.1, 0.1, 0.1)
+              e.material.albedoColor = new BABYLON.Color3(0.1, 0.1, 0.1)
+              e.material.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1)
+            }
             if (e.name === 'Component165') {
               e.material = myMaterial
               e.material.diffuseColor = new BABYLON.Color3(1, 1, 1)
@@ -174,7 +159,6 @@ export default {
             }
             if (e.name === 'Component93') {
             }
-
             if (
               e.name === 'Component18' ||
               e.name === 'Component16' ||
@@ -214,11 +198,14 @@ export default {
               pbr.metallic = 1
               pbr.roughness = 0.5
               pbr.clearCoat.isEnabled = true
+              gl.addIncludedOnlyMesh(e)
+              gl2.addIncludedOnlyMesh(e)
+              e.material.emissiveColor = new BABYLON.Color3(0, 0, 0)
+              //调试器
               // babylon.scene.debugLayer.show({ showExplorer: false })
               // babylon.scene.debugLayer.select(pbr, 'CLEAR COAT')
             }
           }
-
           window.addEventListener('click', function () {
             //监听鼠标点击事件
             let pickResult = babylon.scene.pick(

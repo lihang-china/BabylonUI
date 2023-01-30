@@ -4,7 +4,7 @@
  * @Autor: Your Name
  * @Date: 2022-06-01 16:17:10
  * @LastEditors: Your Name
- * @LastEditTime: 2022-07-22 13:17:15
+ * @LastEditTime: 2023-01-30 14:50:01
 -->
 <template>
   <div class="container">
@@ -20,7 +20,11 @@
       </div>
       <div class="header-menu">
         <a-menu mode="horizontal">
-          <a-menu-item v-for="(item, index) in state.menuList" :key="index">
+          <a-menu-item
+            @click="handleClickMenu(item)"
+            v-for="(item, index) in state.menuList"
+            :key="index"
+          >
             {{ item.label }}
           </a-menu-item>
         </a-menu>
@@ -78,13 +82,16 @@ export default defineComponent({
       meshState: 0,
       menuList: [
         { label: '综合首页' },
-        { label: '智能巡检' },
+        { label: '在线展厅', url: '/exhall' },
         { label: '设备管理' },
         { label: '实时告警' }
       ],
       time: new Date(),
       weatherData: {}
     })
+    const handleClickMenu = (e: { url: string }) => {
+      router.push(e.url)
+    }
     const getWeather = () => {
       AMapLoader.load({
         key: '6a572530732922af32cf42baea2ce7fc', // 申请好的Web端开发者Key，首次调用 load 时必填
@@ -122,7 +129,8 @@ export default defineComponent({
     return {
       state,
       moment,
-      changeState
+      changeState,
+      handleClickMenu
     }
   }
 })
